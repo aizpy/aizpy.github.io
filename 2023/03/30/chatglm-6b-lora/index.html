@@ -1,0 +1,1054 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="AI 探险家">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="ChatGLM-6B 是一个支持中英双语的对话语言模型，基于 GLM (General Language Model)。它只有 62 亿个参数，量化后最低 (INT4 量化) 只需要 6GB 的显存，完全可以部署到消费级显卡上。在实际使用这个模型一段时间以后，我们发现模型的对话表现能力确实非常不错。那么，基于这个模型做 Fine-tuning 就非常有价值了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="对 ChatGLM-6B 做 LoRA Fine-tuning">
+<meta property="og:url" content="https://aizpy.com/2023/03/30/chatglm-6b-lora/index.html">
+<meta property="og:site_name" content="AI 征途">
+<meta property="og:description" content="ChatGLM-6B 是一个支持中英双语的对话语言模型，基于 GLM (General Language Model)。它只有 62 亿个参数，量化后最低 (INT4 量化) 只需要 6GB 的显存，完全可以部署到消费级显卡上。在实际使用这个模型一段时间以后，我们发现模型的对话表现能力确实非常不错。那么，基于这个模型做 Fine-tuning 就非常有价值了。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-03-30T01:48:48.000Z">
+<meta property="article:modified_time" content="2023-03-31T08:24:11.740Z">
+<meta property="article:author" content="AI 探险家">
+<meta property="article:tag" content="LoRA">
+<meta property="article:tag" content="ChatGLM">
+<meta property="article:tag" content="Transformer">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>对 ChatGLM-6B 做 LoRA Fine-tuning - AI 征途</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"aizpy.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"2b001cecc67869b244df37fb87a8100e","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2b001cecc67869b244df37fb87a8100e";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>AI 征途</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="对 ChatGLM-6B 做 LoRA Fine-tuning"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-03-30 09:48" pubdate>
+          2023年3月30日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          111 分钟
+        
+      </span>
+    
+
+    
+    
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">对 ChatGLM-6B 做 LoRA Fine-tuning</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>ChatGLM-6B 是一个支持中英双语的对话语言模型，基于 GLM (General Language Model)。它只有 62 亿个参数，量化后最低 (INT4 量化) 只需要 6GB 的显存，完全可以部署到消费级显卡上。在实际使用这个模型一段时间以后，我们发现模型的对话表现能力确实非常不错。那么，基于这个模型做 Fine-tuning 就非常有价值了。</p>
+<span id="more"></span>
+<p><strong>声明：</strong></p>
+<p>本文提供的所有技术信息，都基于 <a target="_blank" rel="noopener" href="https://huggingface.co/THUDM/chatglm-6b">THUDM/chatglm-6b</a> 的历史版本： <code>096f3de6b4959ce38bef7bb05f3129c931a3084e</code>。</p>
+<h2 id="搭建依赖环境">搭建依赖环境</h2>
+<p>安装 PyTorch 环境： <figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> torch torchvision torchaudio<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure></p>
+<p>按照 ChatGLM-6B 的官方指导，安装软件依赖环境： <figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> <span class="token assign-left variable">protobuf</span><span class="token operator">==</span><span class="token number">3.20</span>.0 <span class="token assign-left variable">transformers</span><span class="token operator">==</span><span class="token number">4.26</span>.1 icetk cpm_kernels  <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure></p>
+<p>为了做 LoRA，还要安装 peft <figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> peft<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure></p>
+<h2 id="加载模型和-tokenizer">加载模型和 Tokenizer</h2>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> transformers <span class="token keyword">import</span> AutoTokenizer<span class="token punctuation">,</span> AutoModel
+
+checkpoint <span class="token operator">=</span> <span class="token string">"THUDM/chatglm-6b"</span>
+model <span class="token operator">=</span> AutoModel<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>checkpoint<span class="token punctuation">,</span> trust_remote_code<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+tokenizer <span class="token operator">=</span> AutoTokenizer<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>checkpoint<span class="token punctuation">,</span> trust_remote_code<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<h2 id="分析模型结构">分析模型结构</h2>
+<p>模型加载完后，我们可以打印这个 <code>model</code> 和 <code>tokenizer</code>，建立对模型的基本认知。</p>
+<p>首先打印<code>model</code>： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">print</span><span class="token punctuation">(</span>model<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure> 得到如下结果： <figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">ChatGLMForConditionalGeneration(
+  (transformer): ChatGLMModel(
+    (word_embeddings): Embedding(150528, 4096)
+    (layers): ModuleList(
+      (0-27): 28 x GLMBlock(
+        (input_layernorm): LayerNorm((4096,), eps&#x3D;1e-05, elementwise_affine&#x3D;True)
+        (attention): SelfAttention(
+          (rotary_emb): RotaryEmbedding()
+          (query_key_value): Linear(in_features&#x3D;4096, out_features&#x3D;12288, bias&#x3D;True)
+          (dense): Linear(in_features&#x3D;4096, out_features&#x3D;4096, bias&#x3D;True)
+        )
+        (post_attention_layernorm): LayerNorm((4096,), eps&#x3D;1e-05, elementwise_affine&#x3D;True)
+        (mlp): GLU(
+          (dense_h_to_4h): Linear(in_features&#x3D;4096, out_features&#x3D;16384, bias&#x3D;True)
+          (dense_4h_to_h): Linear(in_features&#x3D;16384, out_features&#x3D;4096, bias&#x3D;True)
+        )
+      )
+    )
+    (final_layernorm): LayerNorm((4096,), eps&#x3D;1e-05, elementwise_affine&#x3D;True)
+  )
+  (lm_head): Linear(in_features&#x3D;4096, out_features&#x3D;150528, bias&#x3D;False)
+)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure> 简单分析这个模型结构，至少可以得到如下一些信息：</p>
+<ul>
+<li>模型使用了 Transformer 结构，因此可以使用 LoRA 进行 Fine-tuning</li>
+<li>从 Word Embedding 层可以看出，词汇表大小是 <code>150528</code></li>
+<li>LoRA 可以操作的目标是：<code>query_key_value</code></li>
+</ul>
+<p>再打印<code>tokenizer</code>:</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">print</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<p>得到如下结果（为了便于阅读，已对结果做了分行处理）： <figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">ChatGLMTokenizer(
+	name_or_path&#x3D;&#39;THUDM&#x2F;chatglm-6b&#39;, 
+	vocab_size&#x3D;150344, 
+	model_max_length&#x3D;2048, 
+	is_fast&#x3D;False, 
+	padding_side&#x3D;&#39;left&#39;, 
+	truncation_side&#x3D;&#39;right&#39;, 
+	special_tokens&#x3D;&#123;
+		&#39;bos_token&#39;: &#39;&lt;sop&gt;&#39;, 
+		&#39;eos_token&#39;: &#39;&lt;&#x2F;s&gt;&#39;, 
+		&#39;unk_token&#39;: &#39;&lt;unk&gt;&#39;, 
+		&#39;pad_token&#39;: &#39;&lt;pad&gt;&#39;, 
+		&#39;mask_token&#39;: &#39;[MASK]&#39;
+	&#125;
+)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure></p>
+<p>这里有几个可以关注的点：</p>
+<ul>
+<li>词汇表大小<code>vocab_size</code>是<code>150344</code></li>
+<li>不是一个 fast Tokenizer（<code>is_fast</code> 的值是 <code>False</code>）</li>
+<li>特殊 token 包括：<code>bos</code> <code>eos</code> <code>pad</code> 和 <code>mask</code></li>
+</ul>
+<p>为什么 model 中的词汇表大小是 <code>150528</code>，而 <code>tokenizer</code> 中定义的词汇表大小却是 <code>150344</code> 呢？读者可以带着这个疑问去读一读模型项目的源码，看看能不能找到答案。</p>
+<h2 id="配置-lora">配置 LoRA</h2>
+<p>借助 peft 库，我们可以很方便地对模型注入 LoRA。 <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> peft <span class="token keyword">import</span> LoraConfig<span class="token punctuation">,</span> get_peft_model<span class="token punctuation">,</span> TaskType
+
+<span class="token keyword">def</span> <span class="token function">load_lora_config</span><span class="token punctuation">(</span>model<span class="token punctuation">)</span><span class="token punctuation">:</span>
+	config <span class="token operator">=</span> LoraConfig<span class="token punctuation">(</span>
+	    task_type<span class="token operator">=</span>TaskType<span class="token punctuation">.</span>CAUSAL_LM<span class="token punctuation">,</span> 
+	    inference_mode<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+	    r<span class="token operator">=</span><span class="token number">8</span><span class="token punctuation">,</span> 
+	    lora_alpha<span class="token operator">=</span><span class="token number">32</span><span class="token punctuation">,</span> 
+	    lora_dropout<span class="token operator">=</span><span class="token number">0.1</span><span class="token punctuation">,</span>
+	    target_modules<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">"query_key_value"</span><span class="token punctuation">]</span>
+	<span class="token punctuation">)</span>
+	<span class="token keyword">return</span> get_peft_model<span class="token punctuation">(</span>model<span class="token punctuation">,</span> config<span class="token punctuation">)</span>
+
+model <span class="token operator">=</span> load_lora_config<span class="token punctuation">(</span>model<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure> 打印可训练的参数量： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">model<span class="token punctuation">.</span>print_trainable_parameters<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure> 得到如下结果： <figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">trainable params: 3670016 || all params: 6258876416 || trainable%: 0.05863697820615348<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure></p>
+<p>可以看到，总的参数量是 <code>6,258,876,416</code>，可训练的参数量是 <code>3,670,016</code>，占比 <code>0.0586%</code> 左右。训练参数量只是百万级别的，可谓相当友好了！另外需要注意的一点是，ChatGLM-6B 是一个因果语言模型 (Causal Language Model)，因此我们这里选择的任务类型是 <code>CAUSAL_LM</code>。</p>
+<h2 id="构建数据集">构建数据集</h2>
+<h3 id="定义常量">定义常量</h3>
+<p>构建之前，我们先定义几个特殊 Token 常量： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">bos <span class="token operator">=</span> tokenizer<span class="token punctuation">.</span>bos_token_id
+eop <span class="token operator">=</span> tokenizer<span class="token punctuation">.</span>eop_token_id
+pad <span class="token operator">=</span> tokenizer<span class="token punctuation">.</span>pad_token_id
+mask <span class="token operator">=</span> tokenizer<span class="token punctuation">.</span>mask_token_id
+gmask <span class="token operator">=</span> tokenizer<span class="token punctuation">.</span>sp_tokenizer<span class="token punctuation">[</span>tokenizer<span class="token punctuation">.</span>gMASK_token<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure></p>
+<p>将这几个值打印出来： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"bos = "</span><span class="token punctuation">,</span> bos<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"eop = "</span><span class="token punctuation">,</span> eop<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"pad = "</span><span class="token punctuation">,</span> pad<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"mask = "</span><span class="token punctuation">,</span> mask<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"gmask = "</span><span class="token punctuation">,</span> gmask<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure> 得到如下结果： <figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">bos &#x3D;  150004
+eop &#x3D;  150005
+pad &#x3D;  20003
+mask &#x3D;  150000
+gmask &#x3D;  150001<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure></p>
+<p>我们最好直接把这个结果替换掉动态计算的部分，避免 tokenizer 的 API 发生变化导致出错。为什么？因为，尽管 python 语言没有访问修饰符 (Access Modifiers)，但按照代码设计意图，<code>tokenizer.sp_tokenizer</code> 应该是一个私有变量。不通过公共接口来访问私有变量是存在代码迭代风险的，即未来代码迭代后私有变量就可能失效了。因此常量修改后的结果变成： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">bos <span class="token operator">=</span> <span class="token number">150004</span>
+eop <span class="token operator">=</span> <span class="token number">150005</span>
+pad <span class="token operator">=</span> <span class="token number">20003</span>
+mask <span class="token operator">=</span> <span class="token number">150000</span>
+gmask <span class="token operator">=</span> <span class="token number">150001</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure> 除了上面定义的 Token 常量，我们还需要定义模型训练绑定的设备名，以及最大输入长度和最大输出长度等，如下： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">device <span class="token operator">=</span> <span class="token string">"cuda"</span>
+max_src_length <span class="token operator">=</span> <span class="token number">200</span>
+max_dst_length <span class="token operator">=</span> <span class="token number">500</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure> 开发者可以结合自己的显卡性能和要处理的数据集特点来确定这些最大长度。</p>
+<h3 id="测试-tokenizer-的编解码">测试 Tokenizer 的编解码</h3>
+<p>我们可以先做个简单的测试： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">text <span class="token operator">=</span> <span class="token string">"AI探险家"</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">.</span>encode<span class="token punctuation">(</span>text<span class="token punctuation">,</span> add_special_tokens <span class="token operator">=</span> <span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">.</span>encode<span class="token punctuation">(</span>text<span class="token punctuation">,</span> add_special_tokens <span class="token operator">=</span> <span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure> 输出结果是： <figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">[26738, 98715, 83920, 150001, 150004]
+[26738, 98715, 83920]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure></p>
+<p>从这个结果可以看出，“AI探险家”这几个字的裸编码是 <code>[26738, 98715, 83920]</code>。为什么是这样呢？我们可以对每一个数值再解码，看看输出结果： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">print</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">26738</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">98715</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">83920</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure> 输出结果是： <figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">AI
+探险
+家<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure> 观察这个结果，读者应该能对词汇表建立基本的认知了。读者如果有兴趣，还可以分别针对 “A” “I” “探” “险” 这几个字分别编码，看看编码结果是什么。</p>
+<p>另外，当 <code>add_special_tokens = True</code> 时，编码结果会在末尾添加 <code>150001</code>和 <code>150004</code>，也就是 <code>gmask</code> 和 <code>bos</code>。请注意，我们的训练数据，要按照如下编码要求进行构造： <figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">[token, ..., token, gmask, bos, token, ... token, eop]<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure> 因此，前半部分文本的编码可以直接让 <code>add_special_tokens = True</code>，后半部分文本的编码则让 <code>add_special_tokens = False</code>，最后再拼接一个 <code>eop</code>。</p>
+<h3 id="定义-prompt">定义 Prompt</h3>
+<p>我们 Fine-tuning 的任务是问答任务（简称 QA），因此一个简单的 Prompt 是这样的：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">PROMPT_PATTERN <span class="token operator">=</span> <span class="token string">"问：&#123;&#125;\n答： "</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<p><code>&#123;&#125;</code>里填入 QA 训练集的问题文本。在显存有限的情况下，如果不对长文本做限制处理，很容易出现类似 <code>CUDA out of memory</code> 这样的报错。处理长文本，在给定编码后的数组上限时，可能存在这么几种方式：</p>
+<ul>
+<li>截断<strong>末尾</strong>超出部分的编码</li>
+<li>截断<strong>前面</strong>超出部分的编码</li>
+<li>丢掉训练样本</li>
+</ul>
+<p>每一种方式都有各自的优劣，开发者可以根据自身数据的特点自行选择一种处理方式。当然，如果你的显存够大，也可以不处理。本文以上述第一种方式进行处理。 为了不把 <code>PROMPT_PATTERN</code> 中的 <code>\n答：</code> 这几个字截断掉，我们将整个 <code>PROMPT_PATTERN</code> 拆成两部分：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">PROMPT_PATTERN <span class="token operator">=</span> <span class="token string">"问：&#123;&#125;"</span>
+SEP_PATTERN <span class="token operator">=</span> <span class="token string">"\n答： "</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+<p>基于这份 Prompt 模板，我们定义下面三个辅助方法： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">create_prompt</span><span class="token punctuation">(</span>question<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> PROMPT_PATTERN<span class="token punctuation">.</span><span class="token builtin">format</span><span class="token punctuation">(</span>question<span class="token punctuation">)</span><span class="token punctuation">,</span> SEP_PATTERN
+
+
+<span class="token keyword">def</span> <span class="token function">create_prompt_ids</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> question<span class="token punctuation">,</span> max_src_length<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    prompt<span class="token punctuation">,</span> sep <span class="token operator">=</span> create_prompt<span class="token punctuation">(</span>question<span class="token punctuation">)</span>
+    sep_ids <span class="token operator">=</span> tokenizer<span class="token punctuation">.</span>encode<span class="token punctuation">(</span>
+        sep<span class="token punctuation">,</span> 
+        add_special_tokens <span class="token operator">=</span> <span class="token boolean">True</span>
+    <span class="token punctuation">)</span>
+    sep_len <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>sep_ids<span class="token punctuation">)</span>
+    special_tokens_num <span class="token operator">=</span> <span class="token number">2</span>
+    prompt_ids <span class="token operator">=</span> tokenizer<span class="token punctuation">.</span>encode<span class="token punctuation">(</span>
+        prompt<span class="token punctuation">,</span> 
+        max_length <span class="token operator">=</span> max_src_length <span class="token operator">-</span> <span class="token punctuation">(</span>sep_len <span class="token operator">-</span> special_tokens_num<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        truncation <span class="token operator">=</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+        add_special_tokens <span class="token operator">=</span> <span class="token boolean">False</span>
+    <span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> prompt_ids <span class="token operator">+</span> sep_ids
+
+
+<span class="token keyword">def</span> <span class="token function">create_inputs_and_labels</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> question<span class="token punctuation">,</span> answer<span class="token punctuation">,</span> device<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    prompt <span class="token operator">=</span> create_prompt_ids<span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> question<span class="token punctuation">,</span> max_src_length<span class="token punctuation">)</span>
+    completion <span class="token operator">=</span> tokenizer<span class="token punctuation">.</span>encode<span class="token punctuation">(</span>
+        answer<span class="token punctuation">,</span> 
+        max_length <span class="token operator">=</span> max_dst_length<span class="token punctuation">,</span>
+        truncation <span class="token operator">=</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+        add_special_tokens <span class="token operator">=</span> <span class="token boolean">False</span>
+    <span class="token punctuation">)</span>
+
+    inputs <span class="token operator">=</span> prompt <span class="token operator">+</span> completion <span class="token operator">+</span> <span class="token punctuation">[</span>eop<span class="token punctuation">]</span>
+    labels <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">100</span><span class="token punctuation">]</span> <span class="token operator">*</span> <span class="token builtin">len</span><span class="token punctuation">(</span>prompt<span class="token punctuation">)</span> <span class="token operator">+</span> completion <span class="token operator">+</span> <span class="token punctuation">[</span>eop<span class="token punctuation">]</span> 
+    
+    inputs <span class="token operator">=</span> torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span>inputs<span class="token punctuation">,</span> dtype<span class="token operator">=</span>torch<span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+    labels <span class="token operator">=</span> torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span>labels<span class="token punctuation">,</span> dtype<span class="token operator">=</span>torch<span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> inputs<span class="token punctuation">,</span> labels<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure> 值得注意的两点：</p>
+<ul>
+<li>从 <code>create_prompt_ids</code> 这个函数实现可以看出，我们编码分隔符 <code>SEP_PATTERN</code> 时自动添加了前面所述的 2 个特殊 Token。</li>
+<li>对 <code>create_inputs_and_labels</code> 的函数实现中，我们将 <code>labels</code> 无需处理的部分用数值 <code>-100</code> 来表示。因为 <code>ChatGLMForConditionalGeneration</code> 内部在计算损失函数的时候，用的是 <code>torch.nn.CrossEntropyLoss</code>。该函数的参数之一 <code>ignore_index</code> 默认值是 <code>-100</code>。这就让我们在计算损失函数时，无需考虑非标识部分的数值。</li>
+</ul>
+<h3 id="构建-attention-mask-和-position-ids">构建 Attention Mask 和 Position IDs</h3>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">get_attention_mask</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> input_ids<span class="token punctuation">,</span> device<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    seq <span class="token operator">=</span> input_ids<span class="token punctuation">.</span>tolist<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    context_len <span class="token operator">=</span> seq<span class="token punctuation">.</span>index<span class="token punctuation">(</span>bos<span class="token punctuation">)</span>
+    seq_len <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>seq<span class="token punctuation">)</span>
+    attention_mask <span class="token operator">=</span> torch<span class="token punctuation">.</span>ones<span class="token punctuation">(</span><span class="token punctuation">(</span>seq_len<span class="token punctuation">,</span> seq_len<span class="token punctuation">)</span><span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+    attention_mask<span class="token punctuation">.</span>tril_<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    attention_mask<span class="token punctuation">[</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span> <span class="token punctuation">:</span>context_len<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">1</span>
+    attention_mask<span class="token punctuation">.</span>unsqueeze_<span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+    attention_mask <span class="token operator">=</span> <span class="token punctuation">(</span>attention_mask <span class="token operator">&lt;</span> <span class="token number">0.5</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">bool</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> attention_mask
+
+
+<span class="token keyword">def</span> <span class="token function">get_position_ids</span><span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> input_ids<span class="token punctuation">,</span> device<span class="token punctuation">,</span> position_encoding_2d<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    seq <span class="token operator">=</span> input_ids<span class="token punctuation">.</span>tolist<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    context_len <span class="token operator">=</span> seq<span class="token punctuation">.</span>index<span class="token punctuation">(</span>bos<span class="token punctuation">)</span>
+    seq_len <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>seq<span class="token punctuation">)</span>
+
+    mask_token <span class="token operator">=</span> mask <span class="token keyword">if</span> mask <span class="token keyword">in</span> seq <span class="token keyword">else</span> gmask
+    use_gmask <span class="token operator">=</span> <span class="token boolean">False</span> <span class="token keyword">if</span> mask <span class="token keyword">in</span> seq <span class="token keyword">else</span> gmask
+
+    mask_position <span class="token operator">=</span> seq<span class="token punctuation">.</span>index<span class="token punctuation">(</span>mask_token<span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> position_encoding_2d<span class="token punctuation">:</span>
+        position_ids <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span>seq_len<span class="token punctuation">,</span> dtype<span class="token operator">=</span>torch<span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> <span class="token keyword">not</span> use_gmask<span class="token punctuation">:</span>
+            position_ids<span class="token punctuation">[</span>context_len<span class="token punctuation">:</span><span class="token punctuation">]</span> <span class="token operator">=</span> mask_position
+        block_position_ids <span class="token operator">=</span> torch<span class="token punctuation">.</span>cat<span class="token punctuation">(</span><span class="token punctuation">(</span>
+            torch<span class="token punctuation">.</span>zeros<span class="token punctuation">(</span>context_len<span class="token punctuation">,</span> dtype<span class="token operator">=</span>torch<span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span><span class="token punctuation">,</span>
+            torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span>seq_len <span class="token operator">-</span> context_len<span class="token punctuation">,</span> dtype<span class="token operator">=</span>torch<span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">1</span>
+        <span class="token punctuation">)</span><span class="token punctuation">)</span>
+        position_ids <span class="token operator">=</span> torch<span class="token punctuation">.</span>stack<span class="token punctuation">(</span><span class="token punctuation">(</span>position_ids<span class="token punctuation">,</span> block_position_ids<span class="token punctuation">)</span><span class="token punctuation">,</span> dim<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        position_ids <span class="token operator">=</span> torch<span class="token punctuation">.</span>arange<span class="token punctuation">(</span>seq_len<span class="token punctuation">,</span> dtype<span class="token operator">=</span>torch<span class="token punctuation">.</span><span class="token builtin">long</span><span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+        <span class="token keyword">if</span> <span class="token keyword">not</span> use_gmask<span class="token punctuation">:</span>
+            position_ids<span class="token punctuation">[</span>context_len<span class="token punctuation">:</span><span class="token punctuation">]</span> <span class="token operator">=</span> mask_position
+    
+    <span class="token keyword">return</span> position_ids<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<p>在这个通用实现中，我们针对 <code>mask</code> 和 <code>gmask</code> 两种情况做了区分，同时也对是否执行 <code>position_encoding_2d</code> 分情况处理。本文的 QA 任务采用的是 <code>gmask</code>，并且使用 <code>position_encoding_2d = True</code>。</p>
+<p>我们可以构建下面的问答，来验证下这几个函数的输出： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">test_data <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+	<span class="token string">"question"</span><span class="token punctuation">:</span> <span class="token string">"AI探险家帅不帅？"</span><span class="token punctuation">,</span>
+	<span class="token string">"answer"</span><span class="token punctuation">:</span> <span class="token string">"非常帅！"</span>
+<span class="token punctuation">&#125;</span>
+
+inputs<span class="token punctuation">,</span> labels <span class="token operator">=</span> create_inputs_and_labels<span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> <span class="token operator">**</span>test_data<span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+attention_mask <span class="token operator">=</span> get_attention_mask<span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> inputs<span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+position_ids <span class="token operator">=</span> get_position_ids<span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> inputs<span class="token punctuation">,</span> device<span class="token operator">=</span>device<span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"inputs: \n"</span><span class="token punctuation">,</span> inputs<span class="token punctuation">.</span>tolist<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\nlabels: \n"</span><span class="token punctuation">,</span> labels<span class="token punctuation">.</span>tolist<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\nposition_ids: \n"</span><span class="token punctuation">,</span> position_ids<span class="token punctuation">.</span>tolist<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"\nattention_mask: \n"</span><span class="token punctuation">,</span> attention_mask<span class="token punctuation">.</span>tolist<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure></p>
+<p>输出结果（为了便于阅读，已对输出进行格式化操作）： <figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">inputs: 
+ [20005, 84286, 20012, 31943, 98715, 83920, 87359, 83848, 87359, 20031, 20005, 20004, 87342, 20012, 150001, 150004, 20005, 84122, 87359, 20035, 150005]
+
+labels: 
+ [-100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 20005, 84122, 87359, 20035, 150005]
+
+position_ids: 
+ [
+ [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], 
+ [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  1,  2,  3,  4,  5]
+ ]
+
+attention_mask: 
+ [[
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, True], 
+ [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]]]<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure> 结合论文观察数据，基本符合预期。</p>
+<h3 id="创建数据集">创建数据集</h3>
+<p>我们先定义具有如下格式的训练数据： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">train_data <span class="token operator">=</span> <span class="token punctuation">[</span>
+	<span class="token punctuation">&#123;</span><span class="token string">"question"</span><span class="token punctuation">:</span> <span class="token string">"问题1"</span><span class="token punctuation">,</span> <span class="token string">"answer"</span><span class="token punctuation">:</span> <span class="token string">"答案1"</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+	<span class="token punctuation">&#123;</span><span class="token string">"question"</span><span class="token punctuation">:</span> <span class="token string">"问题2"</span><span class="token punctuation">,</span> <span class="token string">"answer"</span><span class="token punctuation">:</span> <span class="token string">"答案2"</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div></figure> 定义好格式后，我们先创建一个 <code>QADataset</code> 类，如下： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> torch<span class="token punctuation">.</span>utils<span class="token punctuation">.</span>data <span class="token keyword">import</span> Dataset
+
+<span class="token keyword">class</span> <span class="token class-name">QADataset</span><span class="token punctuation">(</span>Dataset<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> data<span class="token punctuation">,</span> tokenizer<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token boolean">None</span><span class="token punctuation">:</span>
+        <span class="token builtin">super</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>__init__<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>data <span class="token operator">=</span> data
+        self<span class="token punctuation">.</span>tokenizer <span class="token operator">=</span> tokenizer
+ 
+
+    <span class="token keyword">def</span> <span class="token function">__getitem__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> index<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        item_data <span class="token operator">=</span> self<span class="token punctuation">.</span>data<span class="token punctuation">[</span>index<span class="token punctuation">]</span>
+        tokenizer <span class="token operator">=</span> self<span class="token punctuation">.</span>tokenizer
+        input_ids<span class="token punctuation">,</span> labels <span class="token operator">=</span> create_inputs_and_labels<span class="token punctuation">(</span>
+            tokenizer<span class="token punctuation">,</span> 
+            device<span class="token operator">=</span>device<span class="token punctuation">,</span>
+            <span class="token operator">**</span>item_data
+        <span class="token punctuation">)</span>
+        
+        attention_mask <span class="token operator">=</span> get_attention_mask<span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> input_ids<span class="token punctuation">,</span> device<span class="token punctuation">)</span>
+        position_ids <span class="token operator">=</span> get_position_ids<span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> input_ids<span class="token punctuation">,</span> device<span class="token punctuation">)</span>
+
+        <span class="token keyword">return</span> <span class="token punctuation">&#123;</span>
+            <span class="token string">"input_ids"</span><span class="token punctuation">:</span> input_ids<span class="token punctuation">,</span>
+            <span class="token string">"labels"</span><span class="token punctuation">:</span> labels<span class="token punctuation">,</span>
+            <span class="token string">"attention_mask"</span><span class="token punctuation">:</span> attention_mask<span class="token punctuation">,</span>
+            <span class="token string">"position_ids"</span><span class="token punctuation">:</span> position_ids
+        <span class="token punctuation">&#125;</span>
+        
+
+    <span class="token keyword">def</span> <span class="token function">__len__</span><span class="token punctuation">(</span>self<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token builtin">len</span><span class="token punctuation">(</span>self<span class="token punctuation">.</span>pairs<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure></p>
+<p>然后创建一个 Data Collator：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">collate_fn</span><span class="token punctuation">(</span>batch<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    input_ids <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    attention_mask <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    labels <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    position_ids <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    
+    <span class="token keyword">for</span> obj <span class="token keyword">in</span> batch<span class="token punctuation">:</span>
+        input_ids<span class="token punctuation">.</span>append<span class="token punctuation">(</span>obj<span class="token punctuation">[</span><span class="token string">'input_ids'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        labels<span class="token punctuation">.</span>append<span class="token punctuation">(</span>obj<span class="token punctuation">[</span><span class="token string">'labels'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        attention_mask<span class="token punctuation">.</span>append<span class="token punctuation">(</span>obj<span class="token punctuation">[</span><span class="token string">'attention_mask'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        position_ids<span class="token punctuation">.</span>append<span class="token punctuation">(</span>obj<span class="token punctuation">[</span><span class="token string">'position_ids'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        
+    <span class="token keyword">return</span> <span class="token punctuation">&#123;</span>
+        <span class="token string">'input_ids'</span><span class="token punctuation">:</span> torch<span class="token punctuation">.</span>stack<span class="token punctuation">(</span>input_ids<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token string">'attention_mask'</span><span class="token punctuation">:</span> torch<span class="token punctuation">.</span>stack<span class="token punctuation">(</span>attention_mask<span class="token punctuation">)</span><span class="token punctuation">,</span> 
+        <span class="token string">'labels'</span><span class="token punctuation">:</span> torch<span class="token punctuation">.</span>stack<span class="token punctuation">(</span>labels<span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token string">'position_ids'</span><span class="token punctuation">:</span>torch<span class="token punctuation">.</span>stack<span class="token punctuation">(</span>position_ids<span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<h2 id="开始训练">开始训练</h2>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">from</span> transformers <span class="token keyword">import</span> TrainingArguments<span class="token punctuation">,</span> Trainer
+model<span class="token punctuation">.</span>to<span class="token punctuation">(</span>device<span class="token punctuation">)</span>
+
+training_args <span class="token operator">=</span> TrainingArguments<span class="token punctuation">(</span>
+    <span class="token string">"output"</span><span class="token punctuation">,</span>
+    fp16 <span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span>
+    save_steps <span class="token operator">=</span> <span class="token number">500</span><span class="token punctuation">,</span>
+    save_total_limit <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">,</span>
+    gradient_accumulation_steps<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">,</span>
+    per_device_train_batch_size <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    learning_rate <span class="token operator">=</span> <span class="token number">1e-4</span><span class="token punctuation">,</span>
+    max_steps<span class="token operator">=</span><span class="token number">1500</span><span class="token punctuation">,</span>
+    logging_steps<span class="token operator">=</span><span class="token number">50</span><span class="token punctuation">,</span>
+    remove_unused_columns<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+    seed<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span>
+    data_seed<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span>
+    group_by_length<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>
+    dataloader_pin_memory<span class="token operator">=</span><span class="token boolean">False</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">class</span> <span class="token class-name">ModifiedTrainer</span><span class="token punctuation">(</span>Trainer<span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    <span class="token keyword">def</span> <span class="token function">compute_loss</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> model<span class="token punctuation">,</span> inputs<span class="token punctuation">,</span> return_outputs<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> model<span class="token punctuation">(</span>
+            input_ids<span class="token operator">=</span>inputs<span class="token punctuation">[</span><span class="token string">"input_ids"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            attention_mask<span class="token operator">=</span>inputs<span class="token punctuation">[</span><span class="token string">"attention_mask"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            position_ids<span class="token operator">=</span>inputs<span class="token punctuation">[</span><span class="token string">"position_ids"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+            labels<span class="token operator">=</span>inputs<span class="token punctuation">[</span><span class="token string">"labels"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">)</span><span class="token punctuation">.</span>loss
+
+
+train_dataset <span class="token operator">=</span> QADataset<span class="token punctuation">(</span>train_data<span class="token punctuation">,</span> tokenizer<span class="token operator">=</span>tokenizer<span class="token punctuation">)</span>
+trainer <span class="token operator">=</span> ModifiedTrainer<span class="token punctuation">(</span>
+    model<span class="token operator">=</span>model<span class="token punctuation">,</span>
+    train_dataset<span class="token operator">=</span>train_dataset<span class="token punctuation">,</span>
+    args<span class="token operator">=</span>training_args<span class="token punctuation">,</span>
+    data_collator<span class="token operator">=</span>collate_fn<span class="token punctuation">,</span>
+    tokenizer<span class="token operator">=</span>tokenizer
+<span class="token punctuation">)</span>
+
+trainer<span class="token punctuation">.</span>train<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<h2 id="预测">预测</h2>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">response<span class="token punctuation">,</span> history <span class="token operator">=</span> model<span class="token punctuation">.</span>chat<span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> <span class="token string">"AI探险家的颜值如何？"</span><span class="token punctuation">,</span> history<span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+<h2 id="保存训练模型">保存训练模型</h2>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> os
+
+<span class="token keyword">def</span> <span class="token function">save_tuned_parameters</span><span class="token punctuation">(</span>model<span class="token punctuation">,</span> path<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    saved_params <span class="token operator">=</span> <span class="token punctuation">&#123;</span>
+        k<span class="token punctuation">:</span> v<span class="token punctuation">.</span>to<span class="token punctuation">(</span>device<span class="token punctuation">)</span>
+        <span class="token keyword">for</span> k<span class="token punctuation">,</span> v <span class="token keyword">in</span> model<span class="token punctuation">.</span>named_parameters<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> v<span class="token punctuation">.</span>requires_grad
+    <span class="token punctuation">&#125;</span>
+    torch<span class="token punctuation">.</span>save<span class="token punctuation">(</span>saved_params<span class="token punctuation">,</span> path<span class="token punctuation">)</span>
+
+save_tuned_parameters<span class="token punctuation">(</span>model<span class="token punctuation">,</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span><span class="token string">"/path/to/output"</span><span class="token punctuation">,</span> <span class="token string">"chatglm-6b-lora.pt"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<h2 id="重载训练后的模型">重载训练后的模型</h2>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">checkpoint <span class="token operator">=</span> <span class="token string">"THUDM/chatglm-6b"</span>
+model <span class="token operator">=</span> AutoModel<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>checkpoint<span class="token punctuation">,</span> trust_remote_code<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+tokenizer <span class="token operator">=</span> AutoTokenizer<span class="token punctuation">.</span>from_pretrained<span class="token punctuation">(</span>checkpoint<span class="token punctuation">,</span> trust_remote_code<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+
+model <span class="token operator">=</span> load_lora_config<span class="token punctuation">(</span>model<span class="token punctuation">)</span>
+model<span class="token punctuation">.</span>load_state_dict<span class="token punctuation">(</span>torch<span class="token punctuation">.</span>load<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"/path/to/output/chatglm-6b-lora.pt"</span></span><span class="token punctuation">)</span><span class="token punctuation">,</span> strict<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+
+model<span class="token punctuation">.</span>half<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>cuda<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token builtin">eval</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+response<span class="token punctuation">,</span> history <span class="token operator">=</span> model<span class="token punctuation">.</span>chat<span class="token punctuation">(</span>tokenizer<span class="token punctuation">,</span> <span class="token string">"AI探险家的颜值如何？"</span><span class="token punctuation">,</span> history<span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NLP/" class="category-chain-item">NLP</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/LoRA/">#LoRA</a>
+      
+        <a href="/tags/ChatGLM/">#ChatGLM</a>
+      
+        <a href="/tags/Transformer/">#Transformer</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>对 ChatGLM-6B 做 LoRA Fine-tuning</div>
+      <div>https://aizpy.com/2023/03/30/chatglm-6b-lora/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>AI 探险家</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年3月30日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
