@@ -4,7 +4,7 @@
   
   
   <entry>
-    <title>对 ChatGLM-6B 做 LoRA Fine-tuning</title>
+    <title>对 ChatGLM-6B 做 LoRA fine tuning</title>
     <link href="/2023/03/30/chatglm-6b-lora/"/>
     <url>/2023/03/30/chatglm-6b-lora/</url>
     
@@ -25,6 +25,8 @@
       <tag>ChatGLM</tag>
       
       <tag>Transformer</tag>
+      
+      <tag>LLM</tag>
       
     </tags>
     
