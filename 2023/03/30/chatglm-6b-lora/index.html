@@ -24,7 +24,7 @@
 <meta property="og:description" content="ChatGLM-6B 是一个支持中英双语的对话语言模型，基于 GLM (General Language Model)。它只有 62 亿个参数，量化后最低 (INT4 量化) 只需要 6GB 的显存，完全可以部署到消费级显卡上。在实际使用这个模型一段时间以后，我们发现模型的对话表现能力确实非常不错。那么，基于这个模型做 Fine-tuning 就非常有价值了。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-03-30T01:48:48.000Z">
-<meta property="article:modified_time" content="2023-04-06T02:38:53.930Z">
+<meta property="article:modified_time" content="2023-04-07T06:51:38.397Z">
 <meta property="article:author" content="AI 探险家">
 <meta property="article:tag" content="LoRA">
 <meta property="article:tag" content="ChatGLM">
@@ -260,7 +260,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          14k 字
+          13k 字
         
       </span>
     
@@ -271,7 +271,7 @@
         
         
         
-          114 分钟
+          112 分钟
         
       </span>
     
@@ -422,7 +422,7 @@ eop &#x3D;  150005
 pad &#x3D;  20003
 mask &#x3D;  150000
 gmask &#x3D;  150001<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure></p>
-<p>我们最好直接把这个结果替换掉动态计算的部分，避免 tokenizer 的 API 发生变化导致出错。为什么？因为，尽管 python 语言没有访问修饰符 (Access Modifiers)，但按照代码设计意图，<code>tokenizer.sp_tokenizer</code> 应该是一个私有变量。不通过公共接口来访问私有变量是存在代码迭代风险的，即未来代码迭代后私有变量就可能失效了。因此常量修改后的结果变成： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">bos <span class="token operator">=</span> <span class="token number">150004</span>
+<p>我们也可以直接用这个常量结果替换动态计算的部分。常量修改后的结果变成： <figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">bos <span class="token operator">=</span> <span class="token number">150004</span>
 eop <span class="token operator">=</span> <span class="token number">150005</span>
 pad <span class="token operator">=</span> <span class="token number">20003</span>
 mask <span class="token operator">=</span> <span class="token number">150000</span>
