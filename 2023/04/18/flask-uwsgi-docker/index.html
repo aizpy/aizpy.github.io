@@ -1,0 +1,898 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=light>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="AI 探险家">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="用 Anaconda 开启一个新的环境 创建一个新的 conda 环境，并取名为 flask conda create --name flask python&#x3D;3 激活 flask 环境 conda activate flask 开启一个简单的 Flask 服务 用 pip 安装 Flask pip install flask # main.py from flask import Flask,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在生产环境中使用 Docker 部署 Flask 服务">
+<meta property="og:url" content="https://aizpy.com/2023/04/18/flask-uwsgi-docker/index.html">
+<meta property="og:site_name" content="AI 征途">
+<meta property="og:description" content="用 Anaconda 开启一个新的环境 创建一个新的 conda 环境，并取名为 flask conda create --name flask python&#x3D;3 激活 flask 环境 conda activate flask 开启一个简单的 Flask 服务 用 pip 安装 Flask pip install flask # main.py from flask import Flask,">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-04-18T09:57:38.000Z">
+<meta property="article:modified_time" content="2023-04-18T14:07:51.355Z">
+<meta property="article:author" content="AI 探险家">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="Flask">
+<meta property="article:tag" content="uWSGI">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>在生产环境中使用 Docker 部署 Flask 服务 - AI 征途</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"aizpy.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":false,"baidu":"2b001cecc67869b244df37fb87a8100e","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"PWhUiPs4NgfHM4lK7tylc8gZ-MdYXbMMI","app_key":"eIMyIhXASeu3vlByh3ISaqS9","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+    <!-- Baidu Analytics -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?2b001cecc67869b244df37fb87a8100e";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>AI 征途</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="在生产环境中使用 Docker 部署 Flask 服务"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        AI 探险家
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-18 17:57" pubdate>
+          2023年4月18日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          40 分钟
+        
+      </span>
+    
+
+    
+    
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">在生产环境中使用 Docker 部署 Flask 服务</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="用-anaconda-开启一个新的环境">用 Anaconda 开启一个新的环境</h2>
+<p>创建一个新的 conda 环境，并取名为 <code>flask</code></p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">conda create <span class="token parameter variable">--name</span> flask <span class="token assign-left variable">python</span><span class="token operator">=</span><span class="token number">3</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<p>激活 <code>flask</code> 环境</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">conda activate flask<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<h2 id="开启一个简单的-flask-服务">开启一个简单的 Flask 服务</h2>
+<p>用 pip 安装 Flask</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> flask<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># main.py</span>
+<span class="token keyword">from</span> flask <span class="token keyword">import</span> Flask<span class="token punctuation">,</span> request<span class="token punctuation">,</span> jsonify
+
+app <span class="token operator">=</span> Flask<span class="token punctuation">(</span>__name__<span class="token punctuation">)</span>
+app<span class="token punctuation">.</span>config<span class="token punctuation">[</span><span class="token string">'JSON_AS_ASCII'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">False</span>
+
+<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">"/hello"</span><span class="token punctuation">,</span> methods<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">"GET"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">hello_world</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    name <span class="token operator">=</span> request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> jsonify<span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
+        <span class="token string">"err_code"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+        <span class="token string">"ret"</span><span class="token punctuation">:</span> <span class="token string-interpolation"><span class="token string">f"Hello, </span><span class="token interpolation"><span class="token punctuation">&#123;</span>name<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
+    <span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    app<span class="token punctuation">.</span>run<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<p>运行程序，得到如下输出结果：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none"> * Serving Flask app &#39;main&#39;
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http:&#x2F;&#x2F;127.0.0.1:5000
+Press CTRL+C to quit<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<p>然后浏览器打开：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">http:&#x2F;&#x2F;127.0.0.1:5000&#x2F;hello?name&#x3D;AI探险家<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<p>就会从浏览器中得到如下结果：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">&#123;&quot;err_code&quot;:0,&quot;ret&quot;:&quot;Hello, AI探险家&quot;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<p>从前面开启服务的输出结果可以看出，我们的 Flask 应用目前是一个开发服务。 要正式部署的话，建议使用 WSGI。那我们就接受建议，使用 <code>uWSGI</code> 搭配 <code>nginx</code> 来部署服务搭配。</p>
+<h2 id="安装-uwsgi">安装 uWSGI</h2>
+<p>首先安装 uWSGI 相关的依赖环境。下面是 Ubuntu 系统下的安装命令</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">apt-get</span> <span class="token function">install</span> build-essential python-dev<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<p>其他操作系统可以参考官方安装教程：<a target="_blank" rel="noopener" href="https://uwsgi-docs.readthedocs.io/en/latest/Install.html">Installing uWSGI</a></p>
+<p>接下来是安装 <code>uwsgi</code>。理论上可以直接用 <code>pip</code> 安装。</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> uwsgi<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<p>奇怪的是，我这边在 Anaconda 环境中用 <code>pip</code> 安装 <code>uwsgi</code> 会报错。用 <code>conda</code> 命令来安装则是正常的：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">conda <span class="token function">install</span> <span class="token parameter variable">-c</span> conda-forge uwsgi<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<h2 id="配置-uwsgi">配置 uWSGI</h2>
+<p>在 <code>main.py</code> 同个目录创建一个 <code>uwsgi.ini</code> 文件:</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-ini" data-language="ini"><code class="language-ini"><span class="token section"><span class="token punctuation">[</span><span class="token section-name selector">uwsgi</span><span class="token punctuation">]</span></span>
+<span class="token key attr-name">module</span> <span class="token punctuation">=</span> <span class="token value attr-value">main:app</span>
+
+<span class="token key attr-name">uid</span> <span class="token punctuation">=</span> <span class="token value attr-value">www-data</span>
+<span class="token key attr-name">gid</span> <span class="token punctuation">=</span> <span class="token value attr-value">www-data</span>
+<span class="token key attr-name">master</span> <span class="token punctuation">=</span> <span class="token value attr-value">true</span>
+<span class="token key attr-name">processes</span> <span class="token punctuation">=</span> <span class="token value attr-value">5</span>
+
+<span class="token key attr-name">socket</span> <span class="token punctuation">=</span> <span class="token value attr-value">/tmp/uwsgi.socket</span>
+<span class="token key attr-name">chmod-sock</span> <span class="token punctuation">=</span> <span class="token value attr-value">664</span>
+<span class="token key attr-name">vacuum</span> <span class="token punctuation">=</span> <span class="token value attr-value">true</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<p>在这份配置文件中，调用的模块是 <code>main.py</code> 的 <code>app</code>。然后使用 <code>www-data</code>(WEB 服务的标准用户) 作为 <code>uwsgi</code> 进程的 <code>uid/gid</code>。 通过 <code>processes</code> 指定 5 个进程。另外，我们给 <code>uwsgi</code> 创建了一个 socket 文件 <code>/tmp/uwsgi.socket</code>，并赋予 664 的执行权限。 作为对比，也可以直接给 socket 设置端口号，例如：、</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-ini" data-language="ini"><code class="language-ini"><span class="token section"><span class="token punctuation">[</span><span class="token section-name selector">uwsgi</span><span class="token punctuation">]</span></span>
+...
+<span class="token key attr-name">socket</span> <span class="token punctuation">=</span> <span class="token value attr-value">:3032</span>
+...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<p>另外，当我们退出进程时，希望 <code>/tmp/uwsgi.socket</code> 文件能够被自动删除，因此可以设置 <code>vacuum = true</code> 来实现这个功能。</p>
+<p>运行 <code>uwsgi</code></p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">uwsgi uwsgi.ini<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<p>得到如下输出结果：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">[uWSGI] getting INI configuration from uwsgi.ini
+*** Starting uWSGI 2.0.21 (64bit) on [Tue Apr 18 21:13:37 2023] ***
+compiled with version: 11.2.0 on 28 March 2023 07:32:14
+os: Linux-5.15.90.1-microsoft-standard-WSL2 #1 SMP Fri Jan 27 02:56:13 UTC 2023
+nodename: Airme
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 20
+current working directory: &#x2F;home&#x2F;aizpy&#x2F;Workspace&#x2F;FlaskTest
+detected binary path: &#x2F;home&#x2F;aizpy&#x2F;miniconda3&#x2F;envs&#x2F;flask&#x2F;bin&#x2F;uwsgi
+your processes number limit is 63631
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to UNIX address &#x2F;tmp&#x2F;uwsgi.socket fd 3
+Python version: 3.11.2 (main, Mar 27 2023, 23:42:44) [GCC 11.2.0]
+*** Python threads support is disabled. You can enable it with --enable-threads ***
+Python main interpreter initialized at 0xa01a98
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 437520 bytes (427 KB) for 5 cores
+*** Operational MODE: preforking ***
+WSGI app 0 (mountpoint&#x3D;&#39;&#39;) ready in 0 seconds on interpreter 0xa01a98 pid: 13221 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 13221)
+spawned uWSGI worker 1 (pid: 13222, cores: 1)
+spawned uWSGI worker 2 (pid: 13223, cores: 1)
+spawned uWSGI worker 3 (pid: 13224, cores: 1)
+spawned uWSGI worker 4 (pid: 13225, cores: 1)
+spawned uWSGI worker 5 (pid: 13226, cores: 1)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<p>确实创建了 5 个进程。当输入<code>Ctrl-C</code> 来退出进程时，可以看到如下输出：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">^CSIGINT&#x2F;SIGTERM received...killing workers...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+worker 5 buried after 1 seconds
+goodbye to uWSGI.
+VACUUM: unix socket &#x2F;tmp&#x2F;uwsgi.socket removed.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<p>此时，5 个进程全部退出了，并且 <code>/tmp/uwsgi.socket</code> 文件也被删除了。</p>
+<h2 id="生成依赖环境">生成依赖环境</h2>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip freeze <span class="token operator">></span> requirements.txt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<p>需要注意的是，如果你是通过 conda 安装的 uwsgi，那么执行这个命令后，uWSGI 这一条会变成类似这样的结果：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">uWSGI @ file:&#x2F;&#x2F;&#x2F;croot&#x2F;uwsgi_1679988297904&#x2F;work<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<p>这是一个绝对路径，无法部署到其他机器上。此时可以根据之前 conda 的安装结果，来指定 uwsgi 的版本号。例如： <figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">uWSGI&#x3D;&#x3D;2.0.21<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure></p>
+<p>最终的 <code>requirements.txt</code> 长这样:</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">Flask&#x3D;&#x3D;2.2.3
+uWSGI&#x3D;&#x3D;2.0.21<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+<p>这里删掉了中间的依赖项，因为安装这两个库就会自动安装其他的。</p>
+<h2 id="配置-nginx">配置 nginx</h2>
+<p>创建一份 <code>nginx.conf</code> 文件：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-nginx" data-language="nginx"><code class="language-nginx"><span class="token directive"><span class="token keyword">user</span> www-data</span><span class="token punctuation">;</span>
+<span class="token directive"><span class="token keyword">worker_processes</span> auto</span><span class="token punctuation">;</span>
+<span class="token directive"><span class="token keyword">pid</span> /run/nginx.pid</span><span class="token punctuation">;</span>
+
+<span class="token directive"><span class="token keyword">events</span></span> <span class="token punctuation">&#123;</span>
+    <span class="token directive"><span class="token keyword">worker_connections</span> <span class="token number">1024</span></span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">use</span> epoll</span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">multi_accept</span> <span class="token boolean">on</span></span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token directive"><span class="token keyword">http</span></span> <span class="token punctuation">&#123;</span>
+    <span class="token directive"><span class="token keyword">access_log</span> /dev/stdout</span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">error_log</span> /dev/stdout</span><span class="token punctuation">;</span>
+
+    <span class="token directive"><span class="token keyword">sendfile</span>            <span class="token boolean">on</span></span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">tcp_nopush</span>          <span class="token boolean">on</span></span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">tcp_nodelay</span>         <span class="token boolean">on</span></span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">keepalive_timeout</span>   <span class="token number">65</span></span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">types_hash_max_size</span> <span class="token number">2048</span></span><span class="token punctuation">;</span>
+
+    <span class="token directive"><span class="token keyword">include</span>             /etc/nginx/mime.types</span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">default_type</span>        application/octet-stream</span><span class="token punctuation">;</span>
+
+    <span class="token directive"><span class="token keyword">index</span>   index.html index.htm</span><span class="token punctuation">;</span>
+
+    <span class="token directive"><span class="token keyword">server</span></span> <span class="token punctuation">&#123;</span>
+        <span class="token directive"><span class="token keyword">listen</span>       <span class="token number">80</span> default_server</span><span class="token punctuation">;</span>
+        <span class="token directive"><span class="token keyword">listen</span>       [::]:80 default_server</span><span class="token punctuation">;</span>
+        <span class="token directive"><span class="token keyword">server_name</span>  localhost</span><span class="token punctuation">;</span>
+        <span class="token directive"><span class="token keyword">root</span>         /var/www/html</span><span class="token punctuation">;</span>
+
+        <span class="token directive"><span class="token keyword">location</span> /</span> <span class="token punctuation">&#123;</span>
+            <span class="token directive"><span class="token keyword">include</span> uwsgi_params</span><span class="token punctuation">;</span>
+            <span class="token directive"><span class="token keyword">uwsgi_pass</span> unix:/tmp/uwsgi.socket</span><span class="token punctuation">;</span>
+        <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<h2 id="创建执行脚本">创建执行脚本</h2>
+<p>创建一个启动脚本 <code>start.sh</code></p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/usr/bin/env bash</span>
+<span class="token function">service</span> nginx start
+uwsgi <span class="token parameter variable">--ini</span> uwsgi.ini<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure>
+<h2 id="编写-dockerfile">编写 Dockerfile</h2>
+<figure><div class="code-wrapper"><pre class="line-numbers language-docker" data-language="docker"><code class="language-docker"><span class="token instruction"><span class="token keyword">FROM</span> ubuntu:22.04</span>
+<span class="token instruction"><span class="token keyword">MAINTAINER</span> aizpy <span class="token string">"aizpy@outlook.com"</span></span>
+
+<span class="token instruction"><span class="token keyword">EXPOSE</span> 80</span>
+<span class="token instruction"><span class="token keyword">COPY</span> . /srv/app</span>
+<span class="token instruction"><span class="token keyword">WORKDIR</span> /srv/app</span>
+
+<span class="token instruction"><span class="token keyword">RUN</span> apt-get clean &amp;&amp; apt-get -y update</span>
+<span class="token instruction"><span class="token keyword">RUN</span> apt-get install -y nginx python3-dev build-essential pip</span>
+
+<span class="token instruction"><span class="token keyword">RUN</span> pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple</span>
+
+<span class="token instruction"><span class="token keyword">COPY</span> nginx.conf /etc/nginx</span>
+<span class="token instruction"><span class="token keyword">RUN</span> chmod +x ./start.sh</span>
+<span class="token instruction"><span class="token keyword">CMD</span> [<span class="token string">"./start.sh"</span>]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<h2 id="通过-dockerfile-创建镜像">通过 Dockerfile 创建镜像</h2>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> build <span class="token builtin class-name">.</span> <span class="token parameter variable">-t</span> my_flask_app<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<h2 id="生成容器并运行">生成容器并运行</h2>
+<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">--name</span> flask_app <span class="token parameter variable">-p</span> <span class="token number">80</span>:80 my_flask_app<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://smirnov-am.github.io/running-flask-in-production-with-docker/">Running Flask in production with Docker</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Docker/" class="category-chain-item">Docker</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Docker/">#Docker</a>
+      
+        <a href="/tags/Flask/">#Flask</a>
+      
+        <a href="/tags/uWSGI/">#uWSGI</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>在生产环境中使用 Docker 部署 Flask 服务</div>
+      <div>https://aizpy.com/2023/04/18/flask-uwsgi-docker/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>AI 探险家</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年4月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/03/30/chatglm-6b-lora/" title="对 ChatGLM-6B 做 LoRA fine tuning">
+                        <span class="hidden-mobile">对 ChatGLM-6B 做 LoRA fine tuning</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script  src="https://lib.baomitu.com/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js" ></script>
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
