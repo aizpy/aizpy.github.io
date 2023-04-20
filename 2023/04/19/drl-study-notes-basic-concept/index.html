@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://res.cloudinary.com/marcomontalbano/image/upload/v1681899633/video_to_markdown/images/youtube--vmkRMvhCW5c-c05b58ac6eb4c4700831b2b3070cd403.jpg">
 <meta property="article:published_time" content="2023-04-19T10:01:59.000Z">
-<meta property="article:modified_time" content="2023-04-20T08:55:30.659Z">
+<meta property="article:modified_time" content="2023-04-20T08:57:05.252Z">
 <meta property="article:author" content="AI 探险家">
 <meta property="article:tag" content="Agent">
 <meta property="article:tag" content="Environment">
@@ -430,7 +430,9 @@ V_{\pi}(s_t) = \mathbb{E}_A[Q_{\pi}(s_t, A)] = \int_a \pi(a|s_t)\cdot Q_{\pi}(s_
 <li><p>动作价值函数评估的是，对于给定的策略函数 <span class="math inline">\(\pi\)</span>，Agent 处在状态 <span class="math inline">\(s\)</span> 时，选择动作 <span class="math inline">\(a\)</span> 的好坏。</p></li>
 <li><p>状态价值函数评估的是，对于给定的策略函数 <span class="math inline">\(\pi\)</span>，Agent 处在状态 <span class="math inline">\(s\)</span> 的好坏。</p></li>
 </ul>
-<p>如果要评估策略函数本身的好坏，可以对所有状态 <span class="math inline">\(S\)</span> 求状态价值函数的期望，即 <span class="math inline">\(\mathbb{E}_S[V_{\pi}(S)]\)</span>。</p>
+<p>如果要评估策略函数本身的好坏，可以对所有状态 <span class="math inline">\(S\)</span> 求状态价值函数的期望，即 <span class="math display">\[
+\mathbb{E}_S[V_{\pi}(S)]
+\]</span></p>
 <h2 id="ai-如何控制-agent">AI 如何控制 Agent</h2>
 <ul>
 <li><p>假设我们有一个好的策略函数 <span class="math inline">\(\pi(a|s)\)</span>，那么我们只需要基于当前时刻的状态 <span class="math inline">\(s_t\)</span>，随机采样一个动作即可: <span class="math display">\[
