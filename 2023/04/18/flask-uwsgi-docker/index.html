@@ -16,12 +16,12 @@
   <meta name="author" content="AI 探险家">
   <meta name="keywords" content="">
   
-    <meta name="description" content="用 Anaconda 开启一个新的环境 创建一个新的 conda 环境，并取名为 flask conda create --name flask python&#x3D;3 激活 flask 环境 conda activate flask 开启一个简单的 Flask 服务 用 pip 安装 Flask pip install flask # main.py from flask import Flask,">
+    <meta name="description" content="用 Anaconda 开启一个新的环境 创建一个新的 conda 环境，并取名为 flask 1conda create --name flask python&#x3D;3 激活 flask 环境 1conda activate flask 开启一个简单的 Flask 服务 用 pip 安装 Flask 1pip install flask 12345678910111213141516# main.py">
 <meta property="og:type" content="article">
 <meta property="og:title" content="在生产环境中使用 Docker 部署 Flask 服务">
 <meta property="og:url" content="https://aizpy.com/2023/04/18/flask-uwsgi-docker/index.html">
 <meta property="og:site_name" content="AI 征途">
-<meta property="og:description" content="用 Anaconda 开启一个新的环境 创建一个新的 conda 环境，并取名为 flask conda create --name flask python&#x3D;3 激活 flask 环境 conda activate flask 开启一个简单的 Flask 服务 用 pip 安装 Flask pip install flask # main.py from flask import Flask,">
+<meta property="og:description" content="用 Anaconda 开启一个新的环境 创建一个新的 conda 环境，并取名为 flask 1conda create --name flask python&#x3D;3 激活 flask 环境 1conda activate flask 开启一个简单的 Flask 服务 用 pip 安装 Flask 1pip install flask 12345678910111213141516# main.py">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-04-18T09:57:38.000Z">
 <meta property="article:modified_time" content="2023-04-18T14:07:51.355Z">
@@ -257,7 +257,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.7k 字
+          4.9k 字
         
       </span>
     
@@ -268,7 +268,7 @@
         
         
         
-          40 分钟
+          41 分钟
         
       </span>
     
@@ -315,184 +315,61 @@
                 
                 <h2 id="用-anaconda-开启一个新的环境">用 Anaconda 开启一个新的环境</h2>
 <p>创建一个新的 conda 环境，并取名为 <code>flask</code></p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">conda create <span class="token parameter variable">--name</span> flask <span class="token assign-left variable">python</span><span class="token operator">=</span><span class="token number">3</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">conda create --name flask python=3<br></code></pre></td></tr></table></figure>
 <p>激活 <code>flask</code> 环境</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">conda activate flask<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">conda activate flask<br></code></pre></td></tr></table></figure>
 <h2 id="开启一个简单的-flask-服务">开启一个简单的 Flask 服务</h2>
 <p>用 pip 安装 Flask</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> flask<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
-<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token comment"># main.py</span>
-<span class="token keyword">from</span> flask <span class="token keyword">import</span> Flask<span class="token punctuation">,</span> request<span class="token punctuation">,</span> jsonify
-
-app <span class="token operator">=</span> Flask<span class="token punctuation">(</span>__name__<span class="token punctuation">)</span>
-app<span class="token punctuation">.</span>config<span class="token punctuation">[</span><span class="token string">'JSON_AS_ASCII'</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token boolean">False</span>
-
-<span class="token decorator annotation punctuation">@app<span class="token punctuation">.</span>route</span><span class="token punctuation">(</span><span class="token string">"/hello"</span><span class="token punctuation">,</span> methods<span class="token operator">=</span><span class="token punctuation">[</span><span class="token string">"GET"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
-<span class="token keyword">def</span> <span class="token function">hello_world</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
-    name <span class="token operator">=</span> request<span class="token punctuation">.</span>args<span class="token punctuation">.</span>get<span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">,</span> <span class="token string">""</span><span class="token punctuation">)</span>
-    <span class="token keyword">return</span> jsonify<span class="token punctuation">(</span><span class="token punctuation">&#123;</span>
-        <span class="token string">"err_code"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
-        <span class="token string">"ret"</span><span class="token punctuation">:</span> <span class="token string-interpolation"><span class="token string">f"Hello, </span><span class="token interpolation"><span class="token punctuation">&#123;</span>name<span class="token punctuation">&#125;</span></span><span class="token string">"</span></span>
-    <span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
-
-<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
-    app<span class="token punctuation">.</span>run<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">pip install flask<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># main.py</span><br><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Flask, request, jsonify<br><br>app = Flask(__name__)<br>app.config[<span class="hljs-string">&#x27;JSON_AS_ASCII&#x27;</span>] = <span class="hljs-literal">False</span><br><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&quot;/hello&quot;</span>, methods=[<span class="hljs-string">&quot;GET&quot;</span>]</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">hello_world</span>():<br>    name = request.args.get(<span class="hljs-string">&quot;name&quot;</span>, <span class="hljs-string">&quot;&quot;</span>)<br>    <span class="hljs-keyword">return</span> jsonify(&#123;<br>        <span class="hljs-string">&quot;err_code&quot;</span>: <span class="hljs-number">0</span>,<br>        <span class="hljs-string">&quot;ret&quot;</span>: <span class="hljs-string">f&quot;Hello, <span class="hljs-subst">&#123;name&#125;</span>&quot;</span><br>    &#125;)<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    app.run()<br></code></pre></td></tr></table></figure>
 <p>运行程序，得到如下输出结果：</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none"> * Serving Flask app &#39;main&#39;
- * Debug mode: off
-WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on http:&#x2F;&#x2F;127.0.0.1:5000
-Press CTRL+C to quit<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"> * Serving Flask app <span class="hljs-string">&#x27;main&#x27;</span><br> * <span class="hljs-keyword">Debug</span> mode: <span class="hljs-keyword">off</span><br><span class="hljs-built_in">WARNING</span>: This <span class="hljs-keyword">is</span> a development <span class="hljs-keyword">server</span>. <span class="hljs-keyword">Do</span> <span class="hljs-keyword">not</span> use it <span class="hljs-keyword">in</span> a production deployment. Use a production WSGI <span class="hljs-keyword">server</span> <span class="hljs-keyword">instead</span>.<br> * Running <span class="hljs-keyword">on</span> http://<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">5000</span><br>Press CTRL+C <span class="hljs-keyword">to</span> quit<br></code></pre></td></tr></table></figure>
 <p>然后浏览器打开：</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">http:&#x2F;&#x2F;127.0.0.1:5000&#x2F;hello?name&#x3D;AI探险家<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">http:<span class="hljs-regexp">//</span><span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">5000</span>/hello?name=AI探险家<br></code></pre></td></tr></table></figure>
 <p>就会从浏览器中得到如下结果：</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">&#123;&quot;err_code&quot;:0,&quot;ret&quot;:&quot;Hello, AI探险家&quot;&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;err_code&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-number">0</span><span class="hljs-punctuation">,</span><span class="hljs-attr">&quot;ret&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;Hello, AI探险家&quot;</span><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
 <p>从前面开启服务的输出结果可以看出，我们的 Flask 应用目前是一个开发服务。 要正式部署的话，建议使用 WSGI。那我们就接受建议，使用 <code>uWSGI</code> 搭配 <code>nginx</code> 来部署服务搭配。</p>
 <h2 id="安装-uwsgi">安装 uWSGI</h2>
 <p>首先安装 uWSGI 相关的依赖环境。下面是 Ubuntu 系统下的安装命令</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">apt-get</span> <span class="token function">install</span> build-essential python-dev<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">apt-get install build-essential python-dev<br></code></pre></td></tr></table></figure>
 <p>其他操作系统可以参考官方安装教程：<a target="_blank" rel="noopener" href="https://uwsgi-docs.readthedocs.io/en/latest/Install.html">Installing uWSGI</a></p>
 <p>接下来是安装 <code>uwsgi</code>。理论上可以直接用 <code>pip</code> 安装。</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip <span class="token function">install</span> uwsgi<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">pip install uwsgi<br></code></pre></td></tr></table></figure>
 <p>奇怪的是，我这边在 Anaconda 环境中用 <code>pip</code> 安装 <code>uwsgi</code> 会报错。用 <code>conda</code> 命令来安装则是正常的：</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">conda <span class="token function">install</span> <span class="token parameter variable">-c</span> conda-forge uwsgi<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">conda install -c conda-forge uwsgi<br></code></pre></td></tr></table></figure>
 <h2 id="配置-uwsgi">配置 uWSGI</h2>
 <p>在 <code>main.py</code> 同个目录创建一个 <code>uwsgi.ini</code> 文件:</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-ini" data-language="ini"><code class="language-ini"><span class="token section"><span class="token punctuation">[</span><span class="token section-name selector">uwsgi</span><span class="token punctuation">]</span></span>
-<span class="token key attr-name">module</span> <span class="token punctuation">=</span> <span class="token value attr-value">main:app</span>
-
-<span class="token key attr-name">uid</span> <span class="token punctuation">=</span> <span class="token value attr-value">www-data</span>
-<span class="token key attr-name">gid</span> <span class="token punctuation">=</span> <span class="token value attr-value">www-data</span>
-<span class="token key attr-name">master</span> <span class="token punctuation">=</span> <span class="token value attr-value">true</span>
-<span class="token key attr-name">processes</span> <span class="token punctuation">=</span> <span class="token value attr-value">5</span>
-
-<span class="token key attr-name">socket</span> <span class="token punctuation">=</span> <span class="token value attr-value">/tmp/uwsgi.socket</span>
-<span class="token key attr-name">chmod-sock</span> <span class="token punctuation">=</span> <span class="token value attr-value">664</span>
-<span class="token key attr-name">vacuum</span> <span class="token punctuation">=</span> <span class="token value attr-value">true</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[uwsgi]</span><br><span class="hljs-attr">module</span> = main:app<br><br><span class="hljs-attr">uid</span> = www-data<br><span class="hljs-attr">gid</span> = www-data<br><span class="hljs-attr">master</span> = <span class="hljs-literal">true</span><br><span class="hljs-attr">processes</span> = <span class="hljs-number">5</span><br><br><span class="hljs-attr">socket</span> = /tmp/uwsgi.socket<br><span class="hljs-attr">chmod-sock</span> = <span class="hljs-number">664</span><br><span class="hljs-attr">vacuum</span> = <span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
 <p>在这份配置文件中，调用的模块是 <code>main.py</code> 的 <code>app</code>。然后使用 <code>www-data</code>(WEB 服务的标准用户) 作为 <code>uwsgi</code> 进程的 <code>uid/gid</code>。 通过 <code>processes</code> 指定 5 个进程。另外，我们给 <code>uwsgi</code> 创建了一个 socket 文件 <code>/tmp/uwsgi.socket</code>，并赋予 664 的执行权限。 作为对比，也可以直接给 socket 设置端口号，例如：、</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-ini" data-language="ini"><code class="language-ini"><span class="token section"><span class="token punctuation">[</span><span class="token section-name selector">uwsgi</span><span class="token punctuation">]</span></span>
-...
-<span class="token key attr-name">socket</span> <span class="token punctuation">=</span> <span class="token value attr-value">:3032</span>
-...<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[uwsgi]</span><br>...<br><span class="hljs-attr">socket</span> = :<span class="hljs-number">3032</span><br>...<br></code></pre></td></tr></table></figure>
 <p>另外，当我们退出进程时，希望 <code>/tmp/uwsgi.socket</code> 文件能够被自动删除，因此可以设置 <code>vacuum = true</code> 来实现这个功能。</p>
 <p>运行 <code>uwsgi</code></p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">uwsgi uwsgi.ini<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">uwsgi uwsgi.ini<br></code></pre></td></tr></table></figure>
 <p>得到如下输出结果：</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">[uWSGI] getting INI configuration from uwsgi.ini
-*** Starting uWSGI 2.0.21 (64bit) on [Tue Apr 18 21:13:37 2023] ***
-compiled with version: 11.2.0 on 28 March 2023 07:32:14
-os: Linux-5.15.90.1-microsoft-standard-WSL2 #1 SMP Fri Jan 27 02:56:13 UTC 2023
-nodename: Airme
-machine: x86_64
-clock source: unix
-pcre jit disabled
-detected number of CPU cores: 20
-current working directory: &#x2F;home&#x2F;aizpy&#x2F;Workspace&#x2F;FlaskTest
-detected binary path: &#x2F;home&#x2F;aizpy&#x2F;miniconda3&#x2F;envs&#x2F;flask&#x2F;bin&#x2F;uwsgi
-your processes number limit is 63631
-your memory page size is 4096 bytes
-detected max file descriptor number: 1024
-lock engine: pthread robust mutexes
-thunder lock: disabled (you can enable it with --thunder-lock)
-uwsgi socket 0 bound to UNIX address &#x2F;tmp&#x2F;uwsgi.socket fd 3
-Python version: 3.11.2 (main, Mar 27 2023, 23:42:44) [GCC 11.2.0]
-*** Python threads support is disabled. You can enable it with --enable-threads ***
-Python main interpreter initialized at 0xa01a98
-your server socket listen backlog is limited to 100 connections
-your mercy for graceful operations on workers is 60 seconds
-mapped 437520 bytes (427 KB) for 5 cores
-*** Operational MODE: preforking ***
-WSGI app 0 (mountpoint&#x3D;&#39;&#39;) ready in 0 seconds on interpreter 0xa01a98 pid: 13221 (default app)
-*** uWSGI is running in multiple interpreter mode ***
-spawned uWSGI master process (pid: 13221)
-spawned uWSGI worker 1 (pid: 13222, cores: 1)
-spawned uWSGI worker 2 (pid: 13223, cores: 1)
-spawned uWSGI worker 3 (pid: 13224, cores: 1)
-spawned uWSGI worker 4 (pid: 13225, cores: 1)
-spawned uWSGI worker 5 (pid: 13226, cores: 1)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">[uWSGI] getting INI <span class="hljs-keyword">configuration</span> <span class="hljs-keyword">from</span> uwsgi.ini<br>*** Starting uWSGI <span class="hljs-number">2.0</span><span class="hljs-number">.21</span> (<span class="hljs-number">64</span>bit) <span class="hljs-keyword">on</span> [Tue Apr <span class="hljs-number">18</span> <span class="hljs-number">21</span>:<span class="hljs-number">13</span>:<span class="hljs-number">37</span> <span class="hljs-number">2023</span>] ***<br>compiled <span class="hljs-keyword">with</span> <span class="hljs-keyword">version</span>: <span class="hljs-number">11.2</span><span class="hljs-number">.0</span> <span class="hljs-keyword">on</span> <span class="hljs-number">28</span> March <span class="hljs-number">2023</span> <span class="hljs-number">07</span>:<span class="hljs-number">32</span>:<span class="hljs-number">14</span><br>os: Linux<span class="hljs-number">-5.15</span><span class="hljs-number">.90</span><span class="hljs-number">.1</span>-microsoft-standard-WSL2 #<span class="hljs-number">1</span> SMP Fri Jan <span class="hljs-number">27</span> <span class="hljs-number">02</span>:<span class="hljs-number">56</span>:<span class="hljs-number">13</span> UTC <span class="hljs-number">2023</span><br>nodename: Airme<br>machine: x86_64<br>clock source: unix<br>pcre jit disabled<br>detected number <span class="hljs-keyword">of</span> CPU cores: <span class="hljs-number">20</span><br><span class="hljs-keyword">current</span> working directory: /home/aizpy/Workspace/FlaskTest<br>detected binary <span class="hljs-type">path</span>: /home/aizpy/miniconda3/envs/flask/bin/uwsgi<br>your processes number <span class="hljs-keyword">limit</span> <span class="hljs-keyword">is</span> <span class="hljs-number">63631</span><br>your memory page size <span class="hljs-keyword">is</span> <span class="hljs-number">4096</span> bytes<br>detected max file descriptor number: <span class="hljs-number">1024</span><br><span class="hljs-keyword">lock</span> engine: pthread robust mutexes<br>thunder <span class="hljs-keyword">lock</span>: disabled (you can <span class="hljs-keyword">enable</span> it <span class="hljs-keyword">with</span> <span class="hljs-comment">--thunder-lock)</span><br>uwsgi socket <span class="hljs-number">0</span> bound <span class="hljs-keyword">to</span> UNIX address /tmp/uwsgi.socket fd <span class="hljs-number">3</span><br>Python <span class="hljs-keyword">version</span>: <span class="hljs-number">3.11</span><span class="hljs-number">.2</span> (main, Mar <span class="hljs-number">27</span> <span class="hljs-number">2023</span>, <span class="hljs-number">23</span>:<span class="hljs-number">42</span>:<span class="hljs-number">44</span>) [GCC <span class="hljs-number">11.2</span><span class="hljs-number">.0</span>]<br>*** Python threads support <span class="hljs-keyword">is</span> disabled. You can <span class="hljs-keyword">enable</span> it <span class="hljs-keyword">with</span> <span class="hljs-comment">--enable-threads ***</span><br>Python main interpreter initialized at <span class="hljs-number">0xa01a98</span><br>your <span class="hljs-keyword">server</span> socket <span class="hljs-keyword">listen</span> backlog <span class="hljs-keyword">is</span> limited <span class="hljs-keyword">to</span> <span class="hljs-number">100</span> connections<br>your mercy <span class="hljs-keyword">for</span> graceful operations <span class="hljs-keyword">on</span> workers <span class="hljs-keyword">is</span> <span class="hljs-number">60</span> seconds<br>mapped <span class="hljs-number">437520</span> bytes (<span class="hljs-number">427</span> KB) <span class="hljs-keyword">for</span> <span class="hljs-number">5</span> cores<br>*** Operational MODE: preforking ***<br>WSGI app <span class="hljs-number">0</span> (mountpoint=<span class="hljs-string">&#x27;&#x27;</span>) ready <span class="hljs-keyword">in</span> <span class="hljs-number">0</span> seconds <span class="hljs-keyword">on</span> interpreter <span class="hljs-number">0xa01a98</span> pid: <span class="hljs-number">13221</span> (<span class="hljs-keyword">default</span> app)<br>*** uWSGI <span class="hljs-keyword">is</span> running <span class="hljs-keyword">in</span> multiple interpreter mode ***<br>spawned uWSGI master process (pid: <span class="hljs-number">13221</span>)<br>spawned uWSGI worker <span class="hljs-number">1</span> (pid: <span class="hljs-number">13222</span>, cores: <span class="hljs-number">1</span>)<br>spawned uWSGI worker <span class="hljs-number">2</span> (pid: <span class="hljs-number">13223</span>, cores: <span class="hljs-number">1</span>)<br>spawned uWSGI worker <span class="hljs-number">3</span> (pid: <span class="hljs-number">13224</span>, cores: <span class="hljs-number">1</span>)<br>spawned uWSGI worker <span class="hljs-number">4</span> (pid: <span class="hljs-number">13225</span>, cores: <span class="hljs-number">1</span>)<br>spawned uWSGI worker <span class="hljs-number">5</span> (pid: <span class="hljs-number">13226</span>, cores: <span class="hljs-number">1</span>)<br></code></pre></td></tr></table></figure>
 <p>确实创建了 5 个进程。当输入<code>Ctrl-C</code> 来退出进程时，可以看到如下输出：</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">^CSIGINT&#x2F;SIGTERM received...killing workers...
-worker 1 buried after 1 seconds
-worker 2 buried after 1 seconds
-worker 3 buried after 1 seconds
-worker 4 buried after 1 seconds
-worker 5 buried after 1 seconds
-goodbye to uWSGI.
-VACUUM: unix socket &#x2F;tmp&#x2F;uwsgi.socket removed.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">^CSIGINT/SIGTERM received...killing workers...<br>worker <span class="hljs-number">1</span> buried <span class="hljs-keyword">after</span> <span class="hljs-number">1</span> <span class="hljs-built_in">seconds</span><br>worker <span class="hljs-number">2</span> buried <span class="hljs-keyword">after</span> <span class="hljs-number">1</span> <span class="hljs-built_in">seconds</span><br>worker <span class="hljs-number">3</span> buried <span class="hljs-keyword">after</span> <span class="hljs-number">1</span> <span class="hljs-built_in">seconds</span><br>worker <span class="hljs-number">4</span> buried <span class="hljs-keyword">after</span> <span class="hljs-number">1</span> <span class="hljs-built_in">seconds</span><br>worker <span class="hljs-number">5</span> buried <span class="hljs-keyword">after</span> <span class="hljs-number">1</span> <span class="hljs-built_in">seconds</span><br>goodbye <span class="hljs-built_in">to</span> uWSGI.<br>VACUUM: unix <span class="hljs-built_in">socket</span> /tmp/uwsgi.<span class="hljs-built_in">socket</span> removed.<br></code></pre></td></tr></table></figure>
 <p>此时，5 个进程全部退出了，并且 <code>/tmp/uwsgi.socket</code> 文件也被删除了。</p>
 <h2 id="生成依赖环境">生成依赖环境</h2>
-<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">pip freeze <span class="token operator">></span> requirements.txt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">pip freeze &gt; requirements.txt<br></code></pre></td></tr></table></figure>
 <p>需要注意的是，如果你是通过 conda 安装的 uwsgi，那么执行这个命令后，uWSGI 这一条会变成类似这样的结果：</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">uWSGI @ file:&#x2F;&#x2F;&#x2F;croot&#x2F;uwsgi_1679988297904&#x2F;work<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
-<p>这是一个绝对路径，无法部署到其他机器上。此时可以根据之前 conda 的安装结果，来指定 uwsgi 的版本号。例如： <figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">uWSGI&#x3D;&#x3D;2.0.21<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">uWSGI @ file:<span class="hljs-regexp">//</span><span class="hljs-regexp">/croot/u</span>wsgi_1679988297904/work<br></code></pre></td></tr></table></figure>
+<p>这是一个绝对路径，无法部署到其他机器上。此时可以根据之前 conda 的安装结果，来指定 uwsgi 的版本号。例如： <figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">uWSGI</span><span class="hljs-operator">=</span><span class="hljs-operator">=</span><span class="hljs-number">2.0</span>.<span class="hljs-number">21</span><br></code></pre></td></tr></table></figure></p>
 <p>最终的 <code>requirements.txt</code> 长这样:</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">Flask&#x3D;&#x3D;2.2.3
-uWSGI&#x3D;&#x3D;2.0.21<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></div></figure>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">Flask</span><span class="hljs-operator">=</span><span class="hljs-operator">=</span><span class="hljs-number">2.2</span>.<span class="hljs-number">3</span><br><span class="hljs-attribute">uWSGI</span><span class="hljs-operator">=</span><span class="hljs-operator">=</span><span class="hljs-number">2.0</span>.<span class="hljs-number">21</span><br></code></pre></td></tr></table></figure>
 <p>这里删掉了中间的依赖项，因为安装这两个库就会自动安装其他的。</p>
 <h2 id="配置-nginx">配置 nginx</h2>
 <p>创建一份 <code>nginx.conf</code> 文件：</p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-nginx" data-language="nginx"><code class="language-nginx"><span class="token directive"><span class="token keyword">user</span> www-data</span><span class="token punctuation">;</span>
-<span class="token directive"><span class="token keyword">worker_processes</span> auto</span><span class="token punctuation">;</span>
-<span class="token directive"><span class="token keyword">pid</span> /run/nginx.pid</span><span class="token punctuation">;</span>
-
-<span class="token directive"><span class="token keyword">events</span></span> <span class="token punctuation">&#123;</span>
-    <span class="token directive"><span class="token keyword">worker_connections</span> <span class="token number">1024</span></span><span class="token punctuation">;</span>
-    <span class="token directive"><span class="token keyword">use</span> epoll</span><span class="token punctuation">;</span>
-    <span class="token directive"><span class="token keyword">multi_accept</span> <span class="token boolean">on</span></span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span>
-
-<span class="token directive"><span class="token keyword">http</span></span> <span class="token punctuation">&#123;</span>
-    <span class="token directive"><span class="token keyword">access_log</span> /dev/stdout</span><span class="token punctuation">;</span>
-    <span class="token directive"><span class="token keyword">error_log</span> /dev/stdout</span><span class="token punctuation">;</span>
-
-    <span class="token directive"><span class="token keyword">sendfile</span>            <span class="token boolean">on</span></span><span class="token punctuation">;</span>
-    <span class="token directive"><span class="token keyword">tcp_nopush</span>          <span class="token boolean">on</span></span><span class="token punctuation">;</span>
-    <span class="token directive"><span class="token keyword">tcp_nodelay</span>         <span class="token boolean">on</span></span><span class="token punctuation">;</span>
-    <span class="token directive"><span class="token keyword">keepalive_timeout</span>   <span class="token number">65</span></span><span class="token punctuation">;</span>
-    <span class="token directive"><span class="token keyword">types_hash_max_size</span> <span class="token number">2048</span></span><span class="token punctuation">;</span>
-
-    <span class="token directive"><span class="token keyword">include</span>             /etc/nginx/mime.types</span><span class="token punctuation">;</span>
-    <span class="token directive"><span class="token keyword">default_type</span>        application/octet-stream</span><span class="token punctuation">;</span>
-
-    <span class="token directive"><span class="token keyword">index</span>   index.html index.htm</span><span class="token punctuation">;</span>
-
-    <span class="token directive"><span class="token keyword">server</span></span> <span class="token punctuation">&#123;</span>
-        <span class="token directive"><span class="token keyword">listen</span>       <span class="token number">80</span> default_server</span><span class="token punctuation">;</span>
-        <span class="token directive"><span class="token keyword">listen</span>       [::]:80 default_server</span><span class="token punctuation">;</span>
-        <span class="token directive"><span class="token keyword">server_name</span>  localhost</span><span class="token punctuation">;</span>
-        <span class="token directive"><span class="token keyword">root</span>         /var/www/html</span><span class="token punctuation">;</span>
-
-        <span class="token directive"><span class="token keyword">location</span> /</span> <span class="token punctuation">&#123;</span>
-            <span class="token directive"><span class="token keyword">include</span> uwsgi_params</span><span class="token punctuation">;</span>
-            <span class="token directive"><span class="token keyword">uwsgi_pass</span> unix:/tmp/uwsgi.socket</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">user</span> www-data;<br><span class="hljs-attribute">worker_processes</span> auto;<br><span class="hljs-attribute">pid</span> /run/nginx.pid;<br><br><span class="hljs-section">events</span> &#123;<br>    <span class="hljs-attribute">worker_connections</span> <span class="hljs-number">1024</span>;<br>    <span class="hljs-attribute">use</span> <span class="hljs-literal">epoll</span>;<br>    <span class="hljs-attribute">multi_accept</span> <span class="hljs-literal">on</span>;<br>&#125;<br><br><span class="hljs-section">http</span> &#123;<br>    <span class="hljs-attribute">access_log</span> /dev/stdout;<br>    <span class="hljs-attribute">error_log</span> /dev/stdout;<br><br>    <span class="hljs-attribute">sendfile</span>            <span class="hljs-literal">on</span>;<br>    <span class="hljs-attribute">tcp_nopush</span>          <span class="hljs-literal">on</span>;<br>    <span class="hljs-attribute">tcp_nodelay</span>         <span class="hljs-literal">on</span>;<br>    <span class="hljs-attribute">keepalive_timeout</span>   <span class="hljs-number">65</span>;<br>    <span class="hljs-attribute">types_hash_max_size</span> <span class="hljs-number">2048</span>;<br><br>    <span class="hljs-attribute">include</span>             /etc/nginx/mime.types;<br>    <span class="hljs-attribute">default_type</span>        application/octet-stream;<br><br>    <span class="hljs-attribute">index</span>   index.html index.htm;<br><br>    <span class="hljs-section">server</span> &#123;<br>        <span class="hljs-attribute">listen</span>       <span class="hljs-number">80</span> default_server;<br>        <span class="hljs-attribute">listen</span>       [::]:<span class="hljs-number">80</span> default_server;<br>        <span class="hljs-attribute">server_name</span>  localhost;<br>        <span class="hljs-attribute">root</span>         /var/www/html;<br><br>        <span class="hljs-section">location</span> / &#123;<br>            <span class="hljs-attribute">include</span> uwsgi_params;<br>            <span class="hljs-attribute">uwsgi_pass</span> unix:/tmp/uwsgi.socket;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <h2 id="创建执行脚本">创建执行脚本</h2>
 <p>创建一个启动脚本 <code>start.sh</code></p>
-<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/usr/bin/env bash</span>
-<span class="token function">service</span> nginx start
-uwsgi <span class="token parameter variable">--ini</span> uwsgi.ini<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></div></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/usr/bin/env bash</span><br>service nginx start<br>uwsgi --ini uwsgi.ini<br></code></pre></td></tr></table></figure>
 <h2 id="编写-dockerfile">编写 Dockerfile</h2>
-<figure><div class="code-wrapper"><pre class="line-numbers language-docker" data-language="docker"><code class="language-docker"><span class="token instruction"><span class="token keyword">FROM</span> ubuntu:22.04</span>
-<span class="token instruction"><span class="token keyword">MAINTAINER</span> aizpy <span class="token string">"aizpy@outlook.com"</span></span>
-
-<span class="token instruction"><span class="token keyword">EXPOSE</span> 80</span>
-<span class="token instruction"><span class="token keyword">COPY</span> . /srv/app</span>
-<span class="token instruction"><span class="token keyword">WORKDIR</span> /srv/app</span>
-
-<span class="token instruction"><span class="token keyword">RUN</span> apt-get clean &amp;&amp; apt-get -y update</span>
-<span class="token instruction"><span class="token keyword">RUN</span> apt-get install -y nginx python3-dev build-essential pip</span>
-
-<span class="token instruction"><span class="token keyword">RUN</span> pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple</span>
-
-<span class="token instruction"><span class="token keyword">COPY</span> nginx.conf /etc/nginx</span>
-<span class="token instruction"><span class="token keyword">RUN</span> chmod +x ./start.sh</span>
-<span class="token instruction"><span class="token keyword">CMD</span> [<span class="token string">"./start.sh"</span>]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<figure class="highlight docker"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs docker"><span class="hljs-keyword">FROM</span> ubuntu:<span class="hljs-number">22.04</span><br><span class="hljs-keyword">MAINTAINER</span> aizpy <span class="hljs-string">&quot;aizpy@outlook.com&quot;</span><br><br><span class="hljs-keyword">EXPOSE</span> <span class="hljs-number">80</span><br><span class="hljs-keyword">COPY</span><span class="language-bash"> . /srv/app</span><br><span class="hljs-keyword">WORKDIR</span><span class="language-bash"> /srv/app</span><br><br><span class="hljs-keyword">RUN</span><span class="language-bash"> apt-get clean &amp;&amp; apt-get -y update</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> apt-get install -y nginx python3-dev build-essential pip</span><br><br><span class="hljs-keyword">RUN</span><span class="language-bash"> pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><br><span class="hljs-keyword">COPY</span><span class="language-bash"> nginx.conf /etc/nginx</span><br><span class="hljs-keyword">RUN</span><span class="language-bash"> <span class="hljs-built_in">chmod</span> +x ./start.sh</span><br><span class="hljs-keyword">CMD</span><span class="language-bash"> [<span class="hljs-string">&quot;./start.sh&quot;</span>]</span><br></code></pre></td></tr></table></figure>
 <h2 id="通过-dockerfile-创建镜像">通过 Dockerfile 创建镜像</h2>
-<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> build <span class="token builtin class-name">.</span> <span class="token parameter variable">-t</span> my_flask_app<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">docker build . -t my_flask_app<br></code></pre></td></tr></table></figure>
 <h2 id="生成容器并运行">生成容器并运行</h2>
-<figure><div class="code-wrapper"><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">--name</span> flask_app <span class="token parameter variable">-p</span> <span class="token number">80</span>:80 my_flask_app<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></div></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">docker run --name flask_app -p 80:80 my_flask_app<br></code></pre></td></tr></table></figure>
 <h2 id="参考">参考</h2>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://smirnov-am.github.io/running-flask-in-production-with-docker/">Running Flask in production with Docker</a></li>

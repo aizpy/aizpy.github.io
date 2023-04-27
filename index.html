@@ -262,7 +262,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2023/04/27/pytorch-random-mask/" target="_self">
         <div>
-          本文记录一下用 PyTorch 随机 Mask 的技巧。 这里假设数值低于 2 的 token 都是特殊 token，不做处理。 import torch  # 定义 mask 的 token id mask_token_id = 4  def mlm(tensor):     # 克隆一份数据，避免修改原始输入数据     tensor = tensor.detach().clone()
+          本文记录一下用 PyTorch 随机 Mask 的技巧。 这里假设数值低于 2 的 token 都是特殊 token，不做处理。 123456789101112131415161718import torch# 定义 mask 的 token idmask_token_id = 4def mlm(tensor):    # 克隆一份数据，避免修改原始输入数据    tensor = tensor.
         </div>
       </a>
 
@@ -379,7 +379,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2023/04/18/flask-uwsgi-docker/" target="_self">
         <div>
-          用 Anaconda 开启一个新的环境 创建一个新的 conda 环境，并取名为 flask conda create --name flask python=3 激活 flask 环境 conda activate flask 开启一个简单的 Flask 服务 用 pip 安装 Flask pip install flask # main.py from flask import Flask,
+          用 Anaconda 开启一个新的环境 创建一个新的 conda 环境，并取名为 flask 1conda create --name flask python=3 激活 flask 环境 1conda activate flask 开启一个简单的 Flask 服务 用 pip 安装 Flask 1pip install flask 12345678910111213141516# main.py
         </div>
       </a>
 
@@ -483,13 +483,13 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
+              <a href="/tags/LLM/">#LLM</a>
+            
               <a href="/tags/LoRA/">#LoRA</a>
             
               <a href="/tags/ChatGLM/">#ChatGLM</a>
             
               <a href="/tags/Transformer/">#Transformer</a>
-            
-              <a href="/tags/LLM/">#LLM</a>
             
           </div>
         
