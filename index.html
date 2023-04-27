@@ -262,7 +262,7 @@
       
       <a class="index-excerpt index-excerpt__noimg" href="/2023/04/27/pytorch-random-mask/" target="_self">
         <div>
-          本文记录一下用 PyTorch 随机 Mask 的技巧。 这里假设数值低于 2 的 token 都是特殊 token，不做处理。 import torch  mask_token_id = 4  def mlm(tensor):     rand = torch.rand(tensor.shape)     # 50% 的概率随机 mask     # 忽略掉数值低于 2 的特殊 token
+          本文记录一下用 PyTorch 随机 Mask 的技巧。 这里假设数值低于 2 的 token 都是特殊 token，不做处理。 import torch  # 定义 mask 的 token id mask_token_id = 4  def mlm(tensor):     # 克隆一份数据，避免修改原始输入数据     tensor = tensor.detach().clone()
         </div>
       </a>
 
