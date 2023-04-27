@@ -16,32 +16,22 @@
   <meta name="author" content="AI 探险家">
   <meta name="keywords" content="">
   
-    <meta name="description" content="为了加强理解，我们以《超级玛丽》游戏为例，让 AI 使用强化学习，操作马里奥走动和跳跃，完成通关任务。  术语 Agent 用强化学习驱动的作用对象，也就是下面 Action 的作用对象。在《超级玛丽》游戏中，这个 Agent 就是 AI 控制的马里奥。 State 当前系统状态，用 \(s\) 表示。 Action 作用对象执行的操作或动作，用 \(a\) 表示。例如，在《超级玛丽》游戏中，所有">
+    <meta name="description" content="本文记录一下用 PyTorch 随机 Mask 的技巧。 这里假设数值低于 2 的 token 都是特殊 token，不做处理。 import torch  mask_token_id &#x3D; 4  def mlm(tensor):     rand &#x3D; torch.rand(tensor.shape)     # 50% 的概率随机 mask     # 忽略掉数值低于 2 的特殊 token">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【学习笔记】强化学习基本概念">
-<meta property="og:url" content="https://aizpy.com/2023/04/19/drl-study-notes-basic-concept/index.html">
+<meta property="og:title" content="PyTorch 随机 Mask 的技巧">
+<meta property="og:url" content="https://aizpy.com/2023/04/27/pytorch-random-mask/index.html">
 <meta property="og:site_name" content="AI 征途">
-<meta property="og:description" content="为了加强理解，我们以《超级玛丽》游戏为例，让 AI 使用强化学习，操作马里奥走动和跳跃，完成通关任务。  术语 Agent 用强化学习驱动的作用对象，也就是下面 Action 的作用对象。在《超级玛丽》游戏中，这个 Agent 就是 AI 控制的马里奥。 State 当前系统状态，用 \(s\) 表示。 Action 作用对象执行的操作或动作，用 \(a\) 表示。例如，在《超级玛丽》游戏中，所有">
+<meta property="og:description" content="本文记录一下用 PyTorch 随机 Mask 的技巧。 这里假设数值低于 2 的 token 都是特殊 token，不做处理。 import torch  mask_token_id &#x3D; 4  def mlm(tensor):     rand &#x3D; torch.rand(tensor.shape)     # 50% 的概率随机 mask     # 忽略掉数值低于 2 的特殊 token">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://res.cloudinary.com/marcomontalbano/image/upload/v1681899633/video_to_markdown/images/youtube--vmkRMvhCW5c-c05b58ac6eb4c4700831b2b3070cd403.jpg">
-<meta property="article:published_time" content="2023-04-19T10:01:59.000Z">
-<meta property="article:modified_time" content="2023-04-20T09:44:00.413Z">
+<meta property="article:published_time" content="2023-04-27T02:51:42.000Z">
+<meta property="article:modified_time" content="2023-04-27T03:40:38.365Z">
 <meta property="article:author" content="AI 探险家">
-<meta property="article:tag" content="Agent">
-<meta property="article:tag" content="Environment">
-<meta property="article:tag" content="State">
-<meta property="article:tag" content="Action">
-<meta property="article:tag" content="Reward">
-<meta property="article:tag" content="Policy">
-<meta property="article:tag" content="StateTransition">
-<meta property="article:tag" content="Return">
-<meta property="article:tag" content="ValueFunctions">
+<meta property="article:tag" content="PyTorch">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://res.cloudinary.com/marcomontalbano/image/upload/v1681899633/video_to_markdown/images/youtube--vmkRMvhCW5c-c05b58ac6eb4c4700831b2b3070cd403.jpg">
   
   
   
-  <title>【学习笔记】强化学习基本概念 - AI 征途</title>
+  <title>PyTorch 随机 Mask 的技巧 - AI 征途</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -239,7 +229,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="【学习笔记】强化学习基本概念"></span>
+            <span id="subtitle" data-typed-text="PyTorch 随机 Mask 的技巧"></span>
           
         </div>
 
@@ -255,8 +245,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-04-19 18:01" pubdate>
-          2023年4月19日 晚上
+        <time datetime="2023-04-27 10:51" pubdate>
+          2023年4月27日 上午
         </time>
       </span>
     
@@ -267,7 +257,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.3k 字
+          708 字
         
       </span>
     
@@ -278,7 +268,7 @@
         
         
         
-          28 分钟
+          6 分钟
         
       </span>
     
@@ -318,147 +308,51 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">【学习笔记】强化学习基本概念</h1>
+            <h1 style="display: none">PyTorch 随机 Mask 的技巧</h1>
             
             
               <div class="markdown-body">
                 
-                <p>为了加强理解，我们以《超级玛丽》游戏为例，让 AI 使用强化学习，操作马里奥走动和跳跃，完成通关任务。</p>
-<p><a target="_blank" rel="noopener" href="https://youtu.be/vmkRMvhCW5c" title="深度强化学习(1/5)：基本概念 Deep Reinforcement Learning (1/5)"><img src="https://res.cloudinary.com/marcomontalbano/image/upload/v1681899633/video_to_markdown/images/youtube--vmkRMvhCW5c-c05b58ac6eb4c4700831b2b3070cd403.jpg" srcset="/img/loading.gif" lazyload alt="深度强化学习(1/5)：基本概念 Deep Reinforcement Learning (1/5)" /></a></p>
-<h2 id="术语">术语</h2>
-<h3 id="agent">Agent</h3>
-<p>用强化学习驱动的作用对象，也就是下面 Action 的作用对象。在《超级玛丽》游戏中，这个 Agent 就是 AI 控制的马里奥。</p>
-<h3 id="state">State</h3>
-<p>当前系统状态，用 <span class="math inline">\(s\)</span> 表示。</p>
-<h3 id="action">Action</h3>
-<p>作用对象执行的操作或动作，用 <span class="math inline">\(a\)</span> 表示。例如，在《超级玛丽》游戏中，所有的操作包括往左走 (left)、往右走 (right)、往上走 (up)。那么，</p>
-<p><span class="math display">\[
-a \in \{left, right, up\}
-\]</span></p>
-<h3 id="policy">Policy</h3>
-<p>策略函数，用 <span class="math inline">\(\pi\)</span> 表示。策略函数是根据当前观测到的状态，控制 Agent 如何从动作库（Action）中选择一种动作来执行。策略函数是一个条件概率密度函数，即 <span class="math inline">\(\pi :(s, a) \mapsto [0, 1]\)</span></p>
-<p><span class="math display">\[
-\pi (a | s) = \mathbb{P}(A = a | S = s)
-\]</span></p>
-<p>例如,</p>
-<ul>
-<li><p><span class="math inline">\(\pi(left | s) = 0.5\)</span></p></li>
-<li><p><span class="math inline">\(\pi(right | s) = 0.3\)</span></p></li>
-<li><p><span class="math inline">\(\pi(up | s) = 0.2\)</span></p></li>
-</ul>
-<p><strong>强化学习就是学习出这个策略函数</strong>。基于策略函数，控制 Agent 每一步选择出一个最优动作，完成目标。</p>
-<h3 id="reward">Reward</h3>
-<p>奖励，用 <span class="math inline">\(R\)</span> 表示。Agent 每做一次动作，系统就会给与一定的奖励。<strong>奖励定义的好坏非常影响强化学习的结果。</strong>例如，在《超级玛丽》游戏中，</p>
-<ul>
-<li><p>搜集到一个金币：<span class="math inline">\(R = +1\)</span></p></li>
-<li><p>赢得比赛：<span class="math inline">\(R = +10000\)</span></p></li>
-<li><p>输掉比赛：<span class="math inline">\(R = -10000\)</span></p></li>
-<li><p>什么都没发生：<span class="math inline">\(R = 0\)</span></p></li>
-</ul>
-<p>强化学习的目标，是<strong>获得的奖励总和要尽量高</strong>。</p>
-<h3 id="state-transition">State Transition</h3>
-<p>状态转移。在执行了一个动作后，系统从一个状态变成另一个状态的过程，就是状态转移。用下面的图表示： 
-<pre>
-<code class="mermaid" >
-graph LR
-A[old state]--action--->B[new state]
-</code>
-</pre></p>
-<p>状态转移可以是随机的。这种随机性来源于环境 (Environment)。状态转移满足如下的公式：</p>
-<p><span class="math display">\[
-p(s&#39;|s, a) = \mathbb{P}(S&#39; = s&#39; | S = s, A = a)
-\]</span></p>
-<h4 id="强化学习的随机性来源">强化学习的随机性来源</h4>
-<ul>
-<li><p>Action 有随机性</p></li>
-<li><p>State Transition 有随机性</p></li>
-</ul>
-<h4 id="执行流程">执行流程</h4>
+                <p>本文记录一下用 PyTorch 随机 Mask 的技巧。</p>
+<p>这里假设数值低于 2 的 token 都是特殊 token，不做处理。</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">import</span> torch
 
-<pre>
-<code class="mermaid" >
-graph TD
-S1["s(1)"]-->A1{"a(1)"}
-A1-->S2["s(2)"]
-A1-.->R1("r(1)")
-S2-->A2{"a(2)"}
-A2-->S3["s(3)"]
-A2-.->R2("r(2)")
-S3--"……"--->ST["s(T)"]
-ST-->AT{"a(T)"}
-AT-->ST1["s(T+1)"]
-AT-.->RT("r(T)")
-</code>
-</pre>
-<p>形成 <code>(state, action, reward)</code> 的轨迹 (trajectory): <span class="math display">\[
-(s_1,a_1,r_1), (s_2,a_2,r_2), \dots , (s_T, a_T, r_T)
-\]</span></p>
-<h3 id="return">Return</h3>
-<p>回报，未来的累计奖励 (Cumulative future reward)。<span class="math inline">\(t\)</span> 时刻的未来累计回报用 <span class="math inline">\(U_t\)</span> 表示，有如下公式：</p>
-<p><span class="math display">\[
-U_t = R_t + R_{t+1} + R_{t+2} + R_{t+3} + \dots
-\]</span></p>
-<p>从经验来看，未来的奖励 (reward) 有时不如当下的奖励来得有价值。 例如，当下的 100 元比一年后的 100 元更有价值。 为了体现这一点，我们可以给未来的每一项奖励乘上一个取值范围是 <code>[0, 1]</code> 的因子，变成</p>
-<p><span class="math display">\[
-U_t = R_t + \gamma^{1}R_{t+1} + \gamma^{2}R_{t+2} + \gamma^{3}R_{t+3} + \dots
-\]</span></p>
-<p>形成折扣回报 (<strong>Discounted</strong> return，即 Cumulative <strong>discounted</strong> future reward)。其中 <span class="math inline">\(\gamma\)</span> 是介于 0 到 1 之间的折扣率 (discount rate)。 折扣率是一项超参数 (Hyper-parameter)，可以在训练时被调优。</p>
-<p><span class="math inline">\(t\)</span> 时刻的回报是随机的，这是因为回报依赖于未来的奖励；而未来的奖励则依赖于未来的动作和状态。 后两者都具有随机性，这也使得回报必然具有随机性。用数学公式再来整理一遍：</p>
-<p>由于：</p>
-<ol type="1">
-<li>动作具有随机性: <span class="math display">\[\mathbb{P}(A = a | S = s) = \pi (a | s)\]</span></li>
-<li>状态转移具有随机性: <span class="math display">\[\mathbb{P}(S&#39; = s&#39; | S = s, A = a) = p(s&#39;|s, a)\]</span></li>
-</ol>
-<p>对于任意的 <span class="math inline">\(i \ge t\)</span>，奖励 <span class="math inline">\(R_i\)</span> 依赖于 <span class="math inline">\(S_i\)</span> 和 <span class="math inline">\(A_i\)</span>。因此，给定 <span class="math inline">\(S_t\)</span>, 回报 <span class="math inline">\(U_t\)</span> 应依赖于随机变量：<span class="math inline">\(A_t, A_{t+1}, A_{t+2}, \dots\)</span> 和 <span class="math inline">\(S_t, S_{t+1}, S_{t+2}, \dots\)</span></p>
-<h3 id="value-functions">Value Functions</h3>
-<h4 id="action-value-function">Action-Value Function</h4>
-<p>动作价值函数，是在某一时刻 <span class="math inline">\(t\)</span>，对给定的策略函数 <span class="math inline">\(\pi\)</span>，输出某个动作 <span class="math inline">\(a_t\)</span>，得到未来回报期望的函数。用 <span class="math inline">\(Q\)</span> 表示。即</p>
-<p><span class="math display">\[
-Q_{\pi}(s_t, a_t) = \mathbb{E}[U_t|S_t=s_t, A_t=a_t]
-\]</span></p>
-<p><span class="math inline">\(U_t\)</span> 是<span class="math inline">\(a_t, a_{t+1}, a_{t+2}, \dots\)</span> 和 <span class="math inline">\(s_t, s_{t+1}, s_{t+2}, \dots\)</span> 的函数。</p>
-<p><span class="math display">\[
-U_t = U(a_t, a_{t+1}, a_{t+2}, \dots, s_t, s_{t+1}, s_{t+2}, \dots)
-\]</span></p>
-<p>计算期望时，所有的<span class="math inline">\(a_{t+1}, a_{t+2}, \dots\)</span> 和 <span class="math inline">\(s_{t+1}, s_{t+2}, \dots\)</span> 都应被积分（或累加）掉，最后只保留 <span class="math inline">\(a_t\)</span> 和 <span class="math inline">\(s_t\)</span>。</p>
-<p><span class="math inline">\(t\)</span> 时刻对不同的策略函数分别求期望，找出期望值最大的那个动作价值函数，即可得到<strong>最优动作价值函数 (Optimal action-value function)</strong>。 <span class="math display">\[
-Q^*(s_t, a_t) = \max_{\pi}Q_{\pi}(s_t, a_t)
-\]</span></p>
-<p><span class="math inline">\(Q^*\)</span> 与 <span class="math inline">\(\pi\)</span> 无关。</p>
-<h4 id="state-value-function">State-Value Function</h4>
-<p>对所有的动作 <span class="math inline">\(A\)</span>，计算 <span class="math inline">\(Q\)</span> 的期望，可得到状态价值函数（State-value function)。用下面公式表示：</p>
-<p><span class="math display">\[
-V_{\pi}(s_t) = \mathbb{E}_A[Q_{\pi}(s_t, A)]
-\]</span></p>
-<p>因为 <span class="math inline">\(A\)</span> 服从策略函数定义的概率分布，即 <span class="math inline">\(A \sim \pi(\cdot|s_t)\)</span>，因此上式也可以写成</p>
-<p>（动作是离散的情况） <span class="math display">\[
-V_{\pi}(s_t) = \mathbb{E}_A[Q_{\pi}(s_t, A)] = \sum_a \pi(a|s_t)\cdot Q_{\pi}(s_t, a)
-\]</span> （动作是连续的情况） <span class="math display">\[
-V_{\pi}(s_t) = \mathbb{E}_A[Q_{\pi}(s_t, A)] = \int_a \pi(a|s_t)\cdot Q_{\pi}(s_t, a) da
-\]</span></p>
-<h4 id="两种价值函数的作用">两种价值函数的作用</h4>
-<ul>
-<li><p>动作价值函数评估的是，对于给定的策略函数 <span class="math inline">\(\pi\)</span>，Agent 处在状态 <span class="math inline">\(s\)</span> 时，选择动作 <span class="math inline">\(a\)</span> 的好坏。</p></li>
-<li><p>状态价值函数评估的是，对于给定的策略函数 <span class="math inline">\(\pi\)</span>，Agent 处在状态 <span class="math inline">\(s\)</span> 的好坏。</p></li>
-</ul>
-<p>如果要评估策略函数本身的好坏，可以对所有状态 <span class="math inline">\(S\)</span> 求状态价值函数的期望，即 <span class="math display">\[
-\mathbb{E}_S[V_{\pi}(S)]
-\]</span></p>
-<h2 id="ai-如何控制-agent">AI 如何控制 Agent</h2>
-<ul>
-<li><p>假设我们有一个好的策略函数 <span class="math inline">\(\pi(a|s)\)</span>，那么我们只需要基于当前时刻的状态 <span class="math inline">\(s_t\)</span>，随机采样一个动作即可: <span class="math display">\[
-a_t \sim \pi(\cdot|s_t)
-\]</span></p></li>
-<li><p>假设我们知道最优动作价值函数 <span class="math inline">\(Q^*(s, a)\)</span>，那么我们只需要基于当前时刻的状态 <span class="math inline">\(s_t\)</span>，选择一个可以最大化动作价值函数的动作即可：</p></li>
-</ul>
-<p><span class="math display">\[
-a_t = \arg\max_a Q^*(s_t, a)
-\]</span></p>
-<p>由此可见，强化学习的目标既可以是<strong>策略函数</strong> <span class="math inline">\(\pi(a|s)\)</span>，也可以是<strong>最优动作价值函数</strong> <span class="math inline">\(Q^*(s, a)\)</span>。</p>
-<h2 id="参考">参考</h2>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/wangshusen/DRL">Deep Reinforcement Learning</a></li>
-</ul>
+mask_token_id <span class="token operator">=</span> <span class="token number">4</span>
+
+<span class="token keyword">def</span> <span class="token function">mlm</span><span class="token punctuation">(</span>tensor<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    rand <span class="token operator">=</span> torch<span class="token punctuation">.</span>rand<span class="token punctuation">(</span>tensor<span class="token punctuation">.</span>shape<span class="token punctuation">)</span>
+    <span class="token comment"># 50% 的概率随机 mask</span>
+    <span class="token comment"># 忽略掉数值低于 2 的特殊 token</span>
+    mask_arr <span class="token operator">=</span> <span class="token punctuation">(</span>rand <span class="token operator">&lt;</span> <span class="token number">0.5</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>tensor <span class="token operator">></span> <span class="token number">2</span><span class="token punctuation">)</span> 
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>tensor<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        selection <span class="token operator">=</span> torch<span class="token punctuation">.</span>flatten<span class="token punctuation">(</span>mask_arr<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>nonzero<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>tolist<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        tensor<span class="token punctuation">[</span>i<span class="token punctuation">,</span> selection<span class="token punctuation">]</span> <span class="token operator">=</span> mask_token_id
+
+    <span class="token keyword">return</span> tensor<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<p>测试：</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-python" data-language="python"><code class="language-python">input_ids <span class="token operator">=</span> torch<span class="token punctuation">.</span>tensor<span class="token punctuation">(</span><span class="token punctuation">[</span>
+    <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1652</span><span class="token punctuation">,</span> <span class="token number">233</span><span class="token punctuation">,</span> <span class="token number">3252</span><span class="token punctuation">,</span> <span class="token number">1234</span><span class="token punctuation">,</span> <span class="token number">634</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">223</span><span class="token punctuation">,</span> <span class="token number">1530</span><span class="token punctuation">,</span> <span class="token number">232</span><span class="token punctuation">,</span> <span class="token number">4134</span><span class="token punctuation">,</span> <span class="token number">832</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+labels <span class="token operator">=</span> input_ids<span class="token punctuation">.</span>clone<span class="token punctuation">(</span><span class="token punctuation">)</span>
+masks <span class="token operator">=</span> mlm<span class="token punctuation">(</span>input_ids<span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"labels: \n"</span><span class="token punctuation">,</span> labels<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"masks: \n"</span><span class="token punctuation">,</span> masks<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<p>输出结果（因为是随机 mask，每个人的输出会有所不同）:</p>
+<figure><div class="code-wrapper"><pre class="line-numbers language-none"><code class="language-none">labels:
+tensor([
+    [0, 1652,  233, 3252, 1234,  634,    1,    1,    1,    1],
+    [0,  223, 1530,  232, 4134,  832,   20,    1,    1,    1]
+])
+
+masks:
+ tensor([
+    [0,    4,    4,    4, 1234,  634,    1,    1,    1,    1],
+    [0,    4,    4,  232,    4,  832,    4,    1,    1,    1]
+])<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></div></figure>
+<p>凡是出现数值 4 的，都是被 mask 掉的。</p>
 
                 
               </div>
@@ -467,48 +361,11 @@ a_t = \arg\max_a Q^*(s_t, a)
             <div>
               <div class="post-metas my-3">
   
-    <div class="post-meta mr-3 d-flex align-items-center">
-      <i class="iconfont icon-category"></i>
-      
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/DRL/" class="category-chain-item">DRL</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-    </div>
-  
   
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Agent/">#Agent</a>
-      
-        <a href="/tags/Environment/">#Environment</a>
-      
-        <a href="/tags/State/">#State</a>
-      
-        <a href="/tags/Action/">#Action</a>
-      
-        <a href="/tags/Reward/">#Reward</a>
-      
-        <a href="/tags/Policy/">#Policy</a>
-      
-        <a href="/tags/StateTransition/">#StateTransition</a>
-      
-        <a href="/tags/Return/">#Return</a>
-      
-        <a href="/tags/ValueFunctions/">#ValueFunctions</a>
+        <a href="/tags/PyTorch/">#PyTorch</a>
       
     </div>
   
@@ -520,8 +377,8 @@ a_t = \arg\max_a Q^*(s_t, a)
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>【学习笔记】强化学习基本概念</div>
-      <div>https://aizpy.com/2023/04/19/drl-study-notes-basic-concept/</div>
+      <div>PyTorch 随机 Mask 的技巧</div>
+      <div>https://aizpy.com/2023/04/27/pytorch-random-mask/</div>
     </div>
     <div class="license-meta">
       
@@ -533,7 +390,7 @@ a_t = \arg\max_a Q^*(s_t, a)
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年4月19日</div>
+          <div>2023年4月27日</div>
         </div>
       
       
@@ -565,18 +422,12 @@ a_t = \arg\max_a Q^*(s_t, a)
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/04/27/pytorch-random-mask/" title="PyTorch 随机 Mask 的技巧">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">PyTorch 随机 Mask 的技巧</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/04/18/flask-uwsgi-docker/" title="在生产环境中使用 Docker 部署 Flask 服务">
-                        <span class="hidden-mobile">在生产环境中使用 Docker 部署 Flask 服务</span>
+                      <a href="/2023/04/19/drl-study-notes-basic-concept/" title="【学习笔记】强化学习基本概念">
+                        <span class="hidden-mobile">【学习笔记】强化学习基本概念</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -634,25 +485,6 @@ a_t = \arg\max_a Q^*(s_t, a)
 
   
 
-
-  
-  
-
-
-
-
-
-  <script>
-  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
-    mermaid.initialize({"theme":"default"});
-
-    Fluid.events.registerRefreshCallback(function() {
-      if ('mermaid' in window) {
-        mermaid.init();
-      }
-    });
-  });
-</script>
 
 
 
@@ -872,49 +704,6 @@ a_t = \arg\max_a Q^*(s_t, a)
 
 
   <script>Fluid.plugins.imageCaption();</script>
-
-  
-      <script>
-        if (!window.MathJax) {
-          window.MathJax = {
-            tex    : {
-              inlineMath: { '[+]': [['$', '$']] }
-            },
-            loader : {
-              load: ['ui/lazy']
-            },
-            options: {
-              renderActions: {
-                insertedScript: [200, () => {
-                  document.querySelectorAll('mjx-container').forEach(node => {
-                    let target = node.parentNode;
-                    if (target.nodeName.toLowerCase() === 'li') {
-                      target.parentNode.classList.add('has-jax');
-                    }
-                  });
-                }, '', false]
-              }
-            }
-          };
-        } else {
-          MathJax.startup.document.state(0);
-          MathJax.texReset();
-          MathJax.typeset();
-          MathJax.typesetPromise();
-        }
-
-        Fluid.events.registerRefreshCallback(function() {
-          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
-            MathJax.startup.document.state(0);
-            MathJax.texReset();
-            MathJax.typeset();
-            MathJax.typesetPromise();
-          }
-        });
-      </script>
-    
-
-  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
 
   <script defer src="/js/leancloud.js" ></script>
 
