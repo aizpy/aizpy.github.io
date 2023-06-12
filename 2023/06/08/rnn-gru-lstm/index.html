@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://aizpy.com/img/rnn-gru-lstm.png">
 <meta property="article:published_time" content="2023-06-08T08:07:27.000Z">
-<meta property="article:modified_time" content="2023-06-12T06:17:50.982Z">
+<meta property="article:modified_time" content="2023-06-12T06:21:25.791Z">
 <meta property="article:author" content="AI 探险家">
 <meta property="article:tag" content="LLM">
 <meta property="article:tag" content="RNN">
@@ -370,10 +370,10 @@
 </ul>
 <p>因此，使用 e 指数可以将输入向量中的每个元素转化为一个正数，并且可以突出某些元素的重要性，从而更好地表达输入向量的特征。同时，使用 e 指数也可以使 Softmax 函数具有平滑性和可微性，使得神经网络的训练更加稳定和高效。</p>
 </blockquote>
-<h3 id="定义隐状态-hidden-state">定义隐状态 (Hidden State)</h3>
-<p>隐状态的维度实质上是定义了 <span class="math inline">\(n_h\)</span> 个可以在状态之间进行推理传递的独立特征。我们并不清楚这些特征是什么，也不知道总共应该有多少个这样的独立特征。我们能做的，就是假设有 <span class="math inline">\(n_h\)</span> 个独立特征，然后让机器来学习拟合这些特征。当然，一般来说，这个维度与输入向量 <span class="math inline">\(x\)</span> 的维度 <span class="math inline">\(n_x\)</span> 是没有明显关系的。</p>
+<h3 id="定义隐藏状态-hidden-state">定义隐藏状态 (Hidden State)</h3>
+<p>隐藏状态的维度实质上是定义了 <span class="math inline">\(n_h\)</span> 个可以在状态之间进行推理传递的独立特征。我们并不清楚这些特征是什么，也不知道总共应该有多少个这样的独立特征。我们能做的，就是假设有 <span class="math inline">\(n_h\)</span> 个独立特征，然后让机器来学习拟合这些特征。当然，一般来说，这个维度与输入向量 <span class="math inline">\(x\)</span> 的维度 <span class="math inline">\(n_x\)</span> 是没有明显关系的。</p>
 <h3 id="前向传播">前向传播</h3>
-<p>结合上面的信息，我们可以推断隐状态的更新计算方式如下： <span class="math display">\[
+<p>结合上面的信息，我们可以推断隐藏状态的更新计算方式如下： <span class="math display">\[
 h^{\langle t \rangle} = \operatorname{g}(W_{hh}h^{\langle t-1 \rangle} + W_{hx}x^{\langle t \rangle} + b_h)
 \]</span> 其中，</p>
 <ul>
@@ -384,9 +384,9 @@ h^{\langle t \rangle} = \operatorname{tanh}(W_{hh}h^{\langle t-1 \rangle} + W_{h
 \]</span></p>
 <ul>
 <li>参数矩阵 <span class="math inline">\(W_{hh}\)</span> 的维度是 <span class="math inline">\((n_h, n_h)\)</span>, 而 <span class="math inline">\(W_{hx}\)</span> 的维度是 <span class="math inline">\((n_h, n_x)\)</span>。</li>
-<li>偏置矩阵 <span class="math inline">\(b_h\)</span> 的维度和隐状态 <span class="math inline">\(h^{\langle t \rangle}\)</span> 的维度一致，是 <span class="math inline">\(n_h\)</span>。</li>
+<li>偏置矩阵 <span class="math inline">\(b_h\)</span> 的维度和隐藏状态 <span class="math inline">\(h^{\langle t \rangle}\)</span> 的维度一致，是 <span class="math inline">\(n_h\)</span>。</li>
 </ul>
-<p>然后用输出的隐状态来计算预测值 (Prediction) <span class="math inline">\(\hat{y}\)</span>： <span class="math display">\[
+<p>然后用输出的隐藏状态来计算预测值 (Prediction) <span class="math inline">\(\hat{y}\)</span>： <span class="math display">\[
 \hat{y}^{\langle t \rangle} = \operatorname{softmax}(W_{yh}h^{\langle t \rangle} + b_y)
 \]</span> 其中，</p>
 <ul>
@@ -415,7 +415,7 @@ h^{\langle t \rangle} = \operatorname{tanh}(W_{hh}h^{\langle t-1 \rangle} + W_{h
 \]</span></p>
 <p>将重置门引入 hidden state，来控制 hidden state 的各个特征是否要重置，如下： <span class="math display">\[
 \tilde{h}^{\langle t \rangle} = \operatorname{tanh}(W_{hh}(\Gamma_r^{\langle t \rangle} \odot h^{\langle t-1 \rangle}) + W_{hx}x^{\langle t \rangle} + b_h)
-\]</span> 其中 <span class="math inline">\(\odot\)</span> 表示逐元素相乘。和前面 hidden state 的更新公式相比，我们用 <span class="math inline">\(\Gamma_r^{\langle t \rangle} \odot h^{\langle t-1 \rangle}\)</span> 来替换 <span class="math inline">\(h^{\langle t-1 \rangle}\)</span>。这样做带来的好处是：如果 <span class="math inline">\(\Gamma_r^{\langle t \rangle}\)</span> 的某个元素是 0，则代表其对应的特征被重置为 0，也就是被遗忘了。另外，我们用 <span class="math inline">\(\tilde{h}^{\langle t \rangle}\)</span> 而不是 <span class="math inline">\(h^{\langle t \rangle}\)</span> 来表示输出的 hidden state，是因为它还不是最终的 hidden state，而是 candidate hidden state（候选隐状态）。最终的 hidden state 应该是： <span class="math display">\[
+\]</span> 其中 <span class="math inline">\(\odot\)</span> 表示逐元素相乘。和前面 hidden state 的更新公式相比，我们用 <span class="math inline">\(\Gamma_r^{\langle t \rangle} \odot h^{\langle t-1 \rangle}\)</span> 来替换 <span class="math inline">\(h^{\langle t-1 \rangle}\)</span>。这样做带来的好处是：如果 <span class="math inline">\(\Gamma_r^{\langle t \rangle}\)</span> 的某个元素是 0，则代表其对应的特征被重置为 0，也就是被遗忘了。另外，我们用 <span class="math inline">\(\tilde{h}^{\langle t \rangle}\)</span> 而不是 <span class="math inline">\(h^{\langle t \rangle}\)</span> 来表示输出的 hidden state，是因为它还不是最终的 hidden state，而是 candidate hidden state（候选隐藏状态）。最终的 hidden state 应该是： <span class="math display">\[
 h^{\langle t \rangle} = (1-\Gamma_u^{\langle t \rangle}) \odot h^{\langle t-1 \rangle} + \Gamma_u^{\langle t \rangle} \odot \tilde{h}^{\langle t \rangle}
 \]</span> 它通过更新门 <span class="math inline">\(\Gamma_u^{\langle t \rangle}\)</span> 来控制是否更新到 candidate hidden state 对应的特征。如果 <span class="math inline">\(\Gamma_u^{\langle t \rangle}\)</span> 的某个元素为 0，那么 <span class="math inline">\(h^{\langle t-1 \rangle}\)</span> 对应元素的特征值就保留下来了，即不更新；如果为 1，那么就要完全用 <span class="math inline">\(\tilde{h}^{\langle t-1 \rangle}\)</span> 对应元素的特征值，即完全更新。</p>
 <h2 id="lstm">LSTM</h2>
@@ -434,9 +434,9 @@ h^{\langle t \rangle} = (1-\Gamma_u^{\langle t \rangle}) \odot h^{\langle t-1 \r
 <p><span class="math display">\[
 \Gamma_o^{\langle t \rangle} = \sigma(W_{oh}h^{\langle t-1 \rangle} + W_{ox}x^{\langle t \rangle} + b_o)
 \]</span></p>
-<p>现在我们要多引入一个名为 cell state（单元状态，也被称为记忆细胞状态，memory cell state）的项来存储一部分记忆信息，记为 <span class="math inline">\(c^{\langle t \rangle}\)</span>。和 GRU 的候选隐状态类似，cell state 也有它的候选 (candidate) 形式 <span class="math inline">\(\tilde{c}^{\langle t \rangle}\)</span>，如下： <span class="math display">\[
+<p>现在我们要多引入一个名为 cell state（单元状态，也被称为记忆细胞状态，memory cell state）的项来存储一部分记忆信息，记为 <span class="math inline">\(c^{\langle t \rangle}\)</span>。和 GRU 的候选隐藏状态类似，cell state 也有它的候选 (candidate) 形式 <span class="math inline">\(\tilde{c}^{\langle t \rangle}\)</span>，如下： <span class="math display">\[
 \tilde{c}^{\langle t \rangle} = \tanh(W_{ch}h^{\langle t-1 \rangle} + W_{cx}x^{\langle t \rangle} + b_c)
-\]</span> 和 GRU 中候选隐状态 (candidate hidden state) 不同的是，上述这个操作没有没有引入新的门控。最终的 cell state 如下： <span class="math display">\[
+\]</span> 和 GRU 中候选隐藏状态 (candidate hidden state) 不同的是，上述这个操作没有没有引入新的门控。最终的 cell state 如下： <span class="math display">\[
 c^{\langle t \rangle} = \Gamma_f^{\langle t \rangle} \odot c^{\langle t-1 \rangle} + \Gamma_i^{\langle t \rangle} \odot \tilde{c}^{\langle t \rangle}
 \]</span> 可以看到，<strong>遗忘门 <span class="math inline">\(\Gamma_f\)</span> 控制前一个状态 <span class="math inline">\(c^{\langle t-1 \rangle}\)</span> 的遗忘量，输入门 <span class="math inline">\(\Gamma_i\)</span> 则控制当前新输入状态 <span class="math inline">\(\tilde{c}^{\langle t \rangle}\)</span> 的输入量。</strong></p>
 <p>最后是 hidden state。有了 cell state，我们再通过输出门控制输出量，让 hidden state 用 cell state 来表示： <span class="math display">\[
