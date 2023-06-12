@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://aizpy.com/img/rnn-gru-lstm.png">
 <meta property="article:published_time" content="2023-06-08T08:07:27.000Z">
-<meta property="article:modified_time" content="2023-06-12T07:09:45.177Z">
+<meta property="article:modified_time" content="2023-06-12T07:11:40.352Z">
 <meta property="article:author" content="AI 探险家">
 <meta property="article:tag" content="LLM">
 <meta property="article:tag" content="RNN">
@@ -415,7 +415,7 @@ h^{\langle t \rangle} = \operatorname{tanh}(W_{hh}h^{\langle t-1 \rangle} + W_{h
 \]</span></p>
 <p>将重置门引入 hidden state，来控制 hidden state 的各个特征是否要重置，如下： <span class="math display">\[
 \tilde{h}^{\langle t \rangle} = \operatorname{tanh}(W_{hh}(\Gamma_r^{\langle t \rangle} \odot h^{\langle t-1 \rangle}) + W_{hx}x^{\langle t \rangle} + b_h)
-\]</span> 其中 <span class="math inline">\(\odot\)</span> 表示逐元素相乘。和前面 hidden state 的更新公式相比，我们用 <span class="math inline">\(\Gamma_r^{\langle t \rangle} \odot h^{\langle t-1 \rangle}\)</span> 来替换 <span class="math inline">\(h^{\langle t-1 \rangle}\)</span>。这样做带来的好处是：如果 <span class="math inline">\(\Gamma_r^{\langle t \rangle}\)</span> 的某个元素是 0，则代表其对应的特征被重置为 0，也就是被遗忘了。另外，我们用 <span class="math inline">\(\tilde{h}^{\langle t \rangle}\)</span> 而不是 <span class="math inline">\(h^{\langle t \rangle}\)</span> 来表示输出的 hidden state，是因为它还不是最终的 hidden state，而是 candidate hidden state（候选隐藏状态）。最终的 hidden state 应该是： <span class="math display">\[
+\]</span> 其中 <span class="math inline">\(\odot\)</span> 表示逐元素相乘。和前面 hidden state 的更新公式相比，我们用 <span class="math inline">\(\Gamma_r^{\langle t \rangle} \odot h^{\langle t-1 \rangle}\)</span> 来替换 <span class="math inline">\(h^{\langle t-1 \rangle}\)</span>。这样做带来的好处是：如果 <span class="math inline">\(\Gamma_r^{\langle t \rangle}\)</span> 的某个元素是 0，则代表其对应的特征被重置为 0，也就是被遗忘了。另外，我们用 <span class="math inline">\(\tilde{h}^{\langle t \rangle}\)</span> 而不是 <span class="math inline">\(h^{\langle t \rangle}\)</span> 来表示输出的结果，是因为它还不是最终的 hidden state，而是 candidate hidden state（候选隐藏状态）。最终的 hidden state 应该是： <span class="math display">\[
 h^{\langle t \rangle} = (1-\Gamma_u^{\langle t \rangle}) \odot h^{\langle t-1 \rangle} + \Gamma_u^{\langle t \rangle} \odot \tilde{h}^{\langle t \rangle}
 \]</span> 它通过更新门 <span class="math inline">\(\Gamma_u^{\langle t \rangle}\)</span> 来控制是否更新到 candidate hidden state 对应的特征。如果 <span class="math inline">\(\Gamma_u^{\langle t \rangle}\)</span> 的某个元素为 0，那么 <span class="math inline">\(h^{\langle t-1 \rangle}\)</span> 对应元素的特征值就保留下来了，即不更新；如果为 1，那么就要完全用 <span class="math inline">\(\tilde{h}^{\langle t-1 \rangle}\)</span> 对应元素的特征值，即完全更新。</p>
 <h2 id="lstm">LSTM</h2>
