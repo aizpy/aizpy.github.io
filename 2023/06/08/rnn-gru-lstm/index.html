@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://aizpy.com/img/rnn-gru-lstm.png">
 <meta property="article:published_time" content="2023-06-08T08:07:27.000Z">
-<meta property="article:modified_time" content="2023-06-12T07:04:11.482Z">
+<meta property="article:modified_time" content="2023-06-12T07:06:56.768Z">
 <meta property="article:author" content="AI 探险家">
 <meta property="article:tag" content="LLM">
 <meta property="article:tag" content="RNN">
@@ -361,7 +361,7 @@
 \operatorname{softmax}(z_i) = \frac{e^{z_i}}{\sum_{j=1}^{n}e^{z_j}}
 \]</span></p>
 <p>其中，<span class="math inline">\(z_i\)</span> 是输入向量的第 <span class="math inline">\(i\)</span> 个分量，<span class="math inline">\(n\)</span> 是向量的维度。Softmax 函数将输入向量中的每个分量映射到 <span class="math inline">\([0, 1]\)</span> 区间内，并且所有分量的和为 <span class="math inline">\(1\)</span>，因此可以将其解释为概率分布。</p>
-<p>我曾经尝试询问 ChatGPT，为什么 Softmax 函数需要 e 指数。以下是它的回答，正确与否，仅供参考：</p>
+<p>我曾经尝试询问 ChatGPT，为什么 Softmax 函数需要 e 指数。以下是它的回答，仅供参考：</p>
 <blockquote>
 <p>在 Softmax 函数中，使用 e 指数是因为它具有以下两个性质：</p>
 <ul>
