@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://aizpy.com/img/rnn-gru-lstm.png">
 <meta property="article:published_time" content="2023-06-08T08:07:27.000Z">
-<meta property="article:modified_time" content="2023-06-12T06:21:25.791Z">
+<meta property="article:modified_time" content="2023-06-12T06:57:42.420Z">
 <meta property="article:author" content="AI 探险家">
 <meta property="article:tag" content="LLM">
 <meta property="article:tag" content="RNN">
@@ -272,7 +272,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          8k 字
+          8.1k 字
         
       </span>
     
@@ -283,7 +283,7 @@
         
         
         
-          67 分钟
+          68 分钟
         
       </span>
     
@@ -335,9 +335,9 @@
 <p>在这个图中，</p>
 <ul>
 <li><p>为了便于理解，我们假设输入和输出具有相同的时间步长。即 <span class="math inline">\(T_y = T_x\)</span>。</p></li>
-<li><p><span class="math inline">\(x^{\langle t \rangle}\)</span> 是输入词汇通过 One-Hot 处理后的一维数组（用 <span class="math inline">\(n_x\)</span> 表示其维度，它也是词汇表中词汇的数量）。</p></li>
-<li><p><span class="math inline">\(y^{\langle t \rangle}\)</span> 是输出的结果。它一般是通过 Sigmoid（二分类）或 Softmax（多元分类）等激活函数处理后的一维数组，用 <span class="math inline">\(n_y\)</span> 表示其维度。</p></li>
-<li><p><span class="math inline">\(h^{\langle t \rangle}\)</span> 是隐藏状态 (Hidden State)，用 <span class="math inline">\(n_h\)</span> 表示其维度。每执行一步，其数值都会更新，并把结果传递给下一步。</p></li>
+<li><p><span class="math inline">\(x^{\langle t \rangle}\)</span> 是输入词汇通过 One-Hot 处理后的一维数组，用 <span class="math inline">\(n_x\)</span> 表示数组大小（它也是词汇表中词汇的数量），也可以用 <span class="math inline">\(n_x \times 1\)</span> 的矩阵来表示。</p></li>
+<li><p><span class="math inline">\(y^{\langle t \rangle}\)</span> 是输出的结果。它一般是通过 Sigmoid（二分类）或 Softmax（多元分类）等激活函数处理后的一维数组，用 <span class="math inline">\(n_y\)</span> 表示数组大小，也可以用 <span class="math inline">\(n_y \times 1\)</span> 的矩阵来表示。</p></li>
+<li><p><span class="math inline">\(h^{\langle t \rangle}\)</span> 是隐藏状态 (Hidden State)， <span class="math inline">\(n_h \times 1\)</span> 矩阵，或大小为 <span class="math inline">\(n_h\)</span> 的一维数组。每执行一步，其数值都会更新，并把结果传递给下一步。</p></li>
 </ul>
 <p>为什么是这样的结构？没有隐藏状态可以不可以？答案是否定的。如果没有 Hidden State 这个过程媒介，前一次的推理结果不能反馈给下一次推理，相当于所有输入的词汇都没有进行推理而独立生成结果。这显然不符合文本序列的生成规律。</p>
 <h3 id="one-hot-编码处理输入词汇">One-Hot 编码处理输入词汇</h3>
