@@ -16,22 +16,23 @@
   <meta name="author" content="AI 探险家">
   <meta name="keywords" content="">
   
-    <meta name="description" content="本文记录一下用 PyTorch 随机 Mask 的技巧。 这里假设数值低于 2 的 token 都是特殊 token，不做处理。 123456789101112131415161718import torch# 定义 mask 的 token idmask_token_id &#x3D; 4def mlm(tensor):    # 克隆一份数据，避免修改原始输入数据    tensor &#x3D; tensor.">
+    <meta name="description" content="注意力机制 (Attention Mechanism) 是一种在机器学习和自然语言处理领域中常用的技术。它模拟了人类在处理信息时所具有的注意力分配能力。 在传统的机器学习算法中，输入数据的处理通常 RNN 中的注意力机制 在传统 RNN 网络中，每个时间步 \(t\) 都会输出一个隐藏状态 \(h^{\langle t \rangle}\)。隐藏状态会携带推导信息给下一个时间步。注意力机制认为，过">
 <meta property="og:type" content="article">
-<meta property="og:title" content="PyTorch 随机 Mask 的技巧">
-<meta property="og:url" content="https://aizpy.com/2023/04/27/pytorch-random-mask/index.html">
+<meta property="og:title" content="从注意力机制到 Transformer">
+<meta property="og:url" content="https://aizpy.com/2023/06/14/transformer/index.html">
 <meta property="og:site_name" content="AI 征途">
-<meta property="og:description" content="本文记录一下用 PyTorch 随机 Mask 的技巧。 这里假设数值低于 2 的 token 都是特殊 token，不做处理。 123456789101112131415161718import torch# 定义 mask 的 token idmask_token_id &#x3D; 4def mlm(tensor):    # 克隆一份数据，避免修改原始输入数据    tensor &#x3D; tensor.">
+<meta property="og:description" content="注意力机制 (Attention Mechanism) 是一种在机器学习和自然语言处理领域中常用的技术。它模拟了人类在处理信息时所具有的注意力分配能力。 在传统的机器学习算法中，输入数据的处理通常 RNN 中的注意力机制 在传统 RNN 网络中，每个时间步 \(t\) 都会输出一个隐藏状态 \(h^{\langle t \rangle}\)。隐藏状态会携带推导信息给下一个时间步。注意力机制认为，过">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-04-27T02:51:42.000Z">
-<meta property="article:modified_time" content="2023-04-27T09:13:32.028Z">
+<meta property="article:published_time" content="2023-06-14T03:16:58.000Z">
+<meta property="article:modified_time" content="2023-06-16T06:29:05.476Z">
 <meta property="article:author" content="AI 探险家">
-<meta property="article:tag" content="PyTorch">
+<meta property="article:tag" content="Transformer">
+<meta property="article:tag" content="Attention">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>PyTorch 随机 Mask 的技巧 - AI 征途</title>
+  <title>从注意力机制到 Transformer - AI 征途</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -243,7 +244,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="PyTorch 随机 Mask 的技巧"></span>
+            <span id="subtitle" data-typed-text="从注意力机制到 Transformer"></span>
           
         </div>
 
@@ -259,8 +260,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-04-27 10:51" pubdate>
-          2023年4月27日 上午
+        <time datetime="2023-06-14 11:16" pubdate>
+          2023年6月14日 上午
         </time>
       </span>
     
@@ -271,7 +272,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.4k 字
+          1.7k 字
         
       </span>
     
@@ -282,7 +283,7 @@
         
         
         
-          13 分钟
+          15 分钟
         
       </span>
     
@@ -322,22 +323,36 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">PyTorch 随机 Mask 的技巧</h1>
+            <h1 style="display: none">从注意力机制到 Transformer</h1>
             
             
               <div class="markdown-body">
                 
-                <p>本文记录一下用 PyTorch 随机 Mask 的技巧。</p>
-<p>这里假设数值低于 2 的 token 都是特殊 token，不做处理。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> torch<br><br><span class="hljs-comment"># 定义 mask 的 token id</span><br>mask_token_id = <span class="hljs-number">4</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">mlm</span>(<span class="hljs-params">tensor</span>):<br>    <span class="hljs-comment"># 克隆一份数据，避免修改原始输入数据</span><br>    tensor = tensor.detach().clone()<br><br>    rand = torch.rand(tensor.shape)<br>    <span class="hljs-comment"># 50% 的概率随机 mask</span><br>    <span class="hljs-comment"># 忽略掉数值低于 2 的特殊 token</span><br>    mask_arr = (rand &lt; <span class="hljs-number">0.5</span>) * (tensor &gt; <span class="hljs-number">2</span>) <br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(tensor.shape[<span class="hljs-number">0</span>]):<br>        selection = torch.flatten(mask_arr[i].nonzero()).tolist()<br>        tensor[i, selection] = mask_token_id<br><br>    <span class="hljs-keyword">return</span> tensor<br></code></pre></td></tr></table></figure>
-<p>其中 <code>mask_arr = (rand &lt; 0.5) * (tensor &gt; 2)</code> 只是一个示例，具体应根据实际情形来调整。</p>
-<p>简单测试一下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">samples = torch.tensor([<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">1652</span>, <span class="hljs-number">233</span>, <span class="hljs-number">3252</span>, <span class="hljs-number">1234</span>, <span class="hljs-number">634</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>],<br>    [<span class="hljs-number">0</span>, <span class="hljs-number">223</span>, <span class="hljs-number">1530</span>, <span class="hljs-number">232</span>, <span class="hljs-number">4134</span>, <span class="hljs-number">832</span>, <span class="hljs-number">20</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>],<br>])<br><br>labels = samples<br>input_ids = mlm(samples)<br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;labels: \n&quot;</span>, labels)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;input_ids: \n&quot;</span>, input_ids)<br></code></pre></td></tr></table></figure>
-<p>输出结果（因为是随机 mask，每个人的输出会有所不同）:</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs text">labels:<br> tensor([<br>    [0, 1652,  233, 3252, 1234,  634,    1,    1,    1,    1],<br>    [0,  223, 1530,  232, 4134,  832,   20,    1,    1,    1]<br> ])<br><br>input_ids:<br> tensor([<br>    [0,    4,    4,    4, 1234,  634,    1,    1,    1,    1],<br>    [0,    4,    4,  232,    4,  832,    4,    1,    1,    1]<br>])<br></code></pre></td></tr></table></figure>
-<p>凡是出现数值 4 的，都是被 mask 掉的。</p>
-<p>下面是更一般的使用方式，注意最后一行用了 <code>mlm</code> 方法。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> tqdm.auto <span class="hljs-keyword">import</span> tqdm<br><br>paths = [<span class="hljs-string">&quot;sample_0.txt&quot;</span>, <span class="hljs-string">&quot;sample_1.txt&quot;</span>, <span class="hljs-string">&quot;sample_2.txt&quot;</span>, <span class="hljs-string">&quot;sample_3.txt&quot;</span>, <span class="hljs-string">&quot;sample_4.txt&quot;</span>]<br><br>input_ids = []<br>mask = []<br>labels = []<br><br><span class="hljs-keyword">for</span> path <span class="hljs-keyword">in</span> tqdm(paths):<br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(path, <span class="hljs-string">&#x27;r&#x27;</span>, encoding=<span class="hljs-string">&#x27;utf-8&#x27;</span>) <span class="hljs-keyword">as</span> f:<br>        lines = f.read().split(<span class="hljs-string">&#x27;\n&#x27;</span>)<br>    sample = tokenizer(lines, max_length=<span class="hljs-number">512</span>, padding=<span class="hljs-string">&#x27;max_length&#x27;</span>, trunction=<span class="hljs-literal">True</span>)<br>    labels.append(sample.input_ids)<br>    mask.append(sample.attention_mask)<br>    input_ids.append(mlm(sample.input_ids))<br></code></pre></td></tr></table></figure>
+                <p>注意力机制 (Attention Mechanism) 是一种在机器学习和自然语言处理领域中常用的技术。它模拟了人类在处理信息时所具有的注意力分配能力。</p>
+<p>在传统的机器学习算法中，输入数据的处理通常</p>
+<h2 id="rnn-中的注意力机制">RNN 中的注意力机制</h2>
+<p>在传统 RNN 网络中，每个时间步 <span class="math inline">\(t\)</span> 都会输出一个隐藏状态 <span class="math inline">\(h^{\langle t \rangle}\)</span>。隐藏状态会携带推导信息给下一个时间步。注意力机制认为，过去、现在和未来的每一个隐藏状态都应贡献一部分推导信息给当前时间步，尽管贡献的权重不同，它们是当前时间步的上下文。我们用 <span class="math inline">\(\alpha^{\langle t,t&#39; \rangle}\)</span> 表示在时间步 <span class="math inline">\(t\)</span> 的上下文中，应倾注多少注意力到隐藏状态 <span class="math inline">\(h^{\langle t&#39; \rangle}\)</span> 中（也可以反过来说：隐藏状态 <span class="math inline">\(h^{\langle t&#39; \rangle}\)</span> 应贡献多少权重给上下文）。我们可以把各个隐藏状态用 <span class="math inline">\(\alpha^{\langle t,t&#39; \rangle}\)</span> 相乘之后求和，也就是加权求和，即 <span class="math display">\[
+c^{\langle t \rangle} = \sum_{t&#39;=1}^{T}\alpha^{\langle t,t&#39; \rangle}h^{\langle t&#39; \rangle}
+\]</span> 得到的结果 <span class="math inline">\(c^{\langle t \rangle}\)</span> 就是当前时间步 <span class="math inline">\(t\)</span> 的上下文信息（向量）。</p>
+<p><span class="math inline">\(\alpha^{\langle t,t&#39; \rangle}\)</span> 具体要怎么计算？因为它代表权重，就必然要满足所有权重相加和为 1 的定义，即 <span class="math display">\[
+\sum_{t&#39; = 1}^{T}\alpha^{\langle t,t&#39; \rangle} = 1
+\]</span> 满足权重定义的，自然会联想到 Softmax 激活函数，即 <span class="math display">\[
+\alpha^{\langle t,t&#39; \rangle} = \operatorname{softmax}(e^{\langle t,t&#39; \rangle})
+\]</span> 关键在于 <span class="math inline">\(e^{\langle t,t&#39; \rangle}\)</span> 是什么？从上面的分析可以看出，<span class="math inline">\(e^{\langle t,t&#39; \rangle}\)</span> 一定是跟要隐藏状态 <span class="math inline">\(h^{\langle t&#39; \rangle}\)</span> 相关的。另外，因为是跟时间步 <span class="math inline">\(t\)</span> 相关，自然也要跟当前时间步的输入状态（也就是上一个时间步的输出状态）有关。我们把这个状态定义为 <span class="math inline">\(s^{\langle t-1 \rangle}\)</span> 。那么，将两者做线性组合，并用激活函数 <span class="math inline">\(\operatorname{tanh}(\cdot)\)</span> 处理一下，即可得到 <span class="math inline">\(e^{\langle t,t&#39; \rangle}\)</span>。如下： <span class="math display">\[
+e^{\langle t,t&#39; \rangle} = \operatorname{tanh}(W_hh^{\langle t&#39; \rangle} + W_ss^{\langle t-1 \rangle} + b)
+\]</span> <span class="math inline">\(W_h\)</span>、<span class="math inline">\(W_s\)</span> 和 <span class="math inline">\(b\)</span> 都是可学习的参数。</p>
+<p>用注意力机制处理最终输出时，和原有 RNN 结构不同的是，我们要用 <span class="math inline">\(s^{\langle t \rangle}\)</span> 替换原来的 <span class="math inline">\(h^{\langle t \rangle}\)</span>，用 <span class="math inline">\(c^{\langle t \rangle}\)</span> 替换原来的 <span class="math inline">\(x^{\langle t \rangle}\)</span>。</p>
+<h2 id="自注意力机制">自注意力机制</h2>
+<p>在自注意力机制中，我们假设每个 embedding 过后的输入向量 <span class="math inline">\(x^{\langle i \rangle}\)</span> 都绑定着 <span class="math inline">\(q^{\langle i \rangle}\)</span>, <span class="math inline">\(k^{\langle i \rangle}\)</span>, <span class="math inline">\(v^{\langle i \rangle}\)</span> 这三个 <span class="math display">\[
+q^{\langle i \rangle} = W_q x^{\langle i \rangle}
+\]</span></p>
+<p><span class="math display">\[
+k^{\langle i \rangle} = W_k x^{\langle i \rangle}
+\]</span></p>
+<p><span class="math display">\[
+v^{\langle i \rangle} = W_v x^{\langle i \rangle}
+\]</span></p>
+<h2 id="参考">参考</h2>
 
                 
               </div>
@@ -346,11 +361,34 @@
             <div>
               <div class="post-metas my-3">
   
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/NLP/" class="category-chain-item">NLP</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
   
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/PyTorch/">#PyTorch</a>
+        <a href="/tags/Transformer/">#Transformer</a>
+      
+        <a href="/tags/Attention/">#Attention</a>
       
     </div>
   
@@ -362,8 +400,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>PyTorch 随机 Mask 的技巧</div>
-      <div>https://aizpy.com/2023/04/27/pytorch-random-mask/</div>
+      <div>从注意力机制到 Transformer</div>
+      <div>https://aizpy.com/2023/06/14/transformer/</div>
     </div>
     <div class="license-meta">
       
@@ -375,7 +413,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年4月27日</div>
+          <div>2023年6月14日</div>
         </div>
       
       
@@ -402,29 +440,6 @@
 
 
 
-              
-                <div class="post-prevnext my-3">
-                  <article class="post-prev col-6">
-                    
-                    
-                      <a href="/2023/06/08/rnn-gru-lstm/" title="一文梳理 RNN、GRU 和 LSTM">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">一文梳理 RNN、GRU 和 LSTM</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
-                  </article>
-                  <article class="post-next col-6">
-                    
-                    
-                      <a href="/2023/04/19/drl-study-notes-basic-concept/" title="【学习笔记】强化学习基本概念">
-                        <span class="hidden-mobile">【学习笔记】强化学习基本概念</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
-                    
-                  </article>
-                </div>
               
             </div>
 
@@ -475,6 +490,12 @@
 
 
   
+
+
+  
+  
+
+
 
 
 
@@ -693,6 +714,49 @@
 
 
   <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
 
   <script defer src="/js/leancloud.js" ></script>
 
