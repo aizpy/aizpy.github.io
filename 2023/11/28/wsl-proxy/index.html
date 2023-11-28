@@ -16,21 +16,23 @@
   <meta name="author" content="AI 探险家">
   <meta name="keywords" content="">
   
-    <meta name="description" content="点滴记录 AI 职业之路的所见所想。 关于 aizpy aizpy 是由 AI 和 zippy 组合而成的：  AI (Artificial Intelligence)，即人工智能，代表了我所从事的职业。 zippy 是一个形容词，用来形容某物或某人快速、活泼、有活力的特质。它可以用来形容快速移动的物体，也可以形容充满精力和活力的人。这个词通常用来表示积极、快速和充满活力的态度。相当于中文里的“灵">
-<meta property="og:type" content="website">
-<meta property="og:title" content="关于">
-<meta property="og:url" content="https://aizpy.com/about/index.html">
+    <meta name="description" content="打开 WSL 终端的时候，会出现下面的一个报错： 1wsl: 检测到 localhost 代理配置，但未镜像到 WSL。NAT 模式下的 WSL 不支持 localhost 代理。 这个报错告诉我们，不能用 localhost 直接访问宿主机的代理。 但是如果在 WSL 中能够访问宿主机的 IP，并且宿主机的代理服务“允许来自局域网的连接”，那么 WSL 就可以轻松使用宿主机的代理了。 宿主机的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 WSL 中优雅地使用宿主机的代理">
+<meta property="og:url" content="https://aizpy.com/2023/11/28/wsl-proxy/index.html">
 <meta property="og:site_name" content="AI 征途">
-<meta property="og:description" content="点滴记录 AI 职业之路的所见所想。 关于 aizpy aizpy 是由 AI 和 zippy 组合而成的：  AI (Artificial Intelligence)，即人工智能，代表了我所从事的职业。 zippy 是一个形容词，用来形容某物或某人快速、活泼、有活力的特质。它可以用来形容快速移动的物体，也可以形容充满精力和活力的人。这个词通常用来表示积极、快速和充满活力的态度。相当于中文里的“灵">
+<meta property="og:description" content="打开 WSL 终端的时候，会出现下面的一个报错： 1wsl: 检测到 localhost 代理配置，但未镜像到 WSL。NAT 模式下的 WSL 不支持 localhost 代理。 这个报错告诉我们，不能用 localhost 直接访问宿主机的代理。 但是如果在 WSL 中能够访问宿主机的 IP，并且宿主机的代理服务“允许来自局域网的连接”，那么 WSL 就可以轻松使用宿主机的代理了。 宿主机的">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-03-14T07:56:36.000Z">
-<meta property="article:modified_time" content="2023-06-21T09:32:11.116Z">
+<meta property="article:published_time" content="2023-11-28T09:50:22.000Z">
+<meta property="article:modified_time" content="2023-11-28T10:09:05.386Z">
 <meta property="article:author" content="AI 探险家">
+<meta property="article:tag" content="wsl">
+<meta property="article:tag" content="proxy">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>关于 - AI 征途</title>
+  <title>在 WSL 中优雅地使用宿主机的代理 - AI 征途</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -124,7 +126,7 @@
   <header>
     
 
-<div class="header-inner" style="height: 60vh;">
+<div class="header-inner" style="height: 70vh;">
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
@@ -242,9 +244,56 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="关于"></span>
+            <span id="subtitle" data-typed-text="在 WSL 中优雅地使用宿主机的代理"></span>
           
         </div>
+
+        
+          
+  <div class="mt-3">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-author" aria-hidden="true"></i>
+        AI 探险家
+      </span>
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-28 17:50" pubdate>
+          2023年11月28日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          615 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          6 分钟
+        
+      </span>
+    
+
+    
+    
+      
+    
+  </div>
+
 
         
       </div>
@@ -260,76 +309,167 @@
 
   <main>
     
-      <div class="container nopadding-x-md">
-        <div id="board"
-          >
-          
-            <div class="about-avatar">
-              <img src="/img/ai_road.png" srcset="/img/loading.gif" lazyload class="img-fluid" alt="avatar">
-            </div>
-          
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-10 m-auto">
-                
+      
 
-<div class="text-center">
-  <div class="about-info">
-    <div class="about-name">AI 探险家</div>
-    <div class="about-intro">用知识点亮机器之心</div>
-    <div class="about-icons">
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
       
-        
-        
-        
-        <a href=https://github.com/aizpy class="
-           hint--bottom hint--rounded"
-           aria-label=GitHub
-           target="_blank"
-        >
-          <i class="iconfont icon-github-fill" aria-hidden="true"></i>
-          
-        </a>
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">在 WSL 中优雅地使用宿主机的代理</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>打开 WSL 终端的时候，会出现下面的一个报错：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs text">wsl: 检测到 localhost 代理配置，但未镜像到 WSL。NAT 模式下的 WSL 不支持 localhost 代理。<br></code></pre></td></tr></table></figure>
+<p>这个报错告诉我们，不能用 localhost 直接访问宿主机的代理。 但是如果在 WSL 中能够访问宿主机的 IP，并且宿主机的代理服务“允许来自局域网的连接”，那么 WSL 就可以轻松使用宿主机的代理了。</p>
+<p>宿主机的 IP 可以在 <code>/etc/resolv.conf</code> 文件里面找到，但这个 IP 可能会变动。因此只要在使用的时候，去解析出这个 IP 即可。 我们可以通过如下的命令解析出宿主机 IP：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat /etc/resolv.conf |grep &quot;nameserver&quot; |cut -f 2 -d &quot; &quot;<br></code></pre></td></tr></table></figure>
+<p>有了宿主机 IP，我们就可以在<code>~/.bashrc</code> 或 <code>~/.zshrc</code> 直接定义一个<code>alias proxy</code>，</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">host_ip=$(cat /etc/resolv.conf |grep &quot;nameserver&quot; |cut -f 2 -d &quot; &quot;)<br>proxy_port=10809<br>alias proxy=&quot;all_proxy=http://$host_ip:$proxy_port&quot;<br></code></pre></td></tr></table></figure>
+<p><code>proxy_port</code> 要改成宿主机代理端口。现在就可以在 WSL 中使用宿主机代理执行 HTTP 请求了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">proxy curl www.some-proxy-domain.com<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
       
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
         
-        
-        
-        <a href=mailto:aizpy@outlook.com class="
-           hint--bottom hint--rounded"
-           aria-label=邮件
-           target="_blank"
-        >
-          <i class="iconfont icon-mail" aria-hidden="true"></i>
-          
-        </a>
+  <a href="/categories/O-M/" class="category-chain-item">O&amp;M</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
       
+        <a href="/tags/wsl/">#wsl</a>
+      
+        <a href="/tags/proxy/">#proxy</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>在 WSL 中优雅地使用宿主机的代理</div>
+      <div>https://aizpy.com/2023/11/28/wsl-proxy/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>AI 探险家</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月28日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/08/rnn-gru-lstm/" title="一文梳理 RNN、GRU 和 LSTM">
+                        <span class="hidden-mobile">一文梳理 RNN、GRU 和 LSTM</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
     </div>
   </div>
 </div>
 
-<article class="about-content page-content mt-5">
-  <div class="markdown-body">
-    <p>点滴记录 AI 职业之路的所见所想。</p>
-<h2 id="关于-aizpy">关于 aizpy</h2>
-<p>aizpy 是由 <strong>AI</strong> 和 <strong>zippy</strong> 组合而成的：</p>
-<ul>
-<li><strong>AI</strong> (Artificial Intelligence)，即人工智能，代表了我所从事的职业。</li>
-<li><strong>zippy</strong> 是一个形容词，用来形容某物或某人快速、活泼、有活力的特质。它可以用来形容快速移动的物体，也可以形容充满精力和活力的人。这个词通常用来表示积极、快速和充满活力的态度。相当于中文里的<strong>“灵动”</strong>或<strong>“活力四溢”</strong>。</li>
-</ul>
-<p>因此，aizpy 这个名字的寓意是要追求一个<strong>快乐、积极、活力四溢</strong>的人生。</p>
-<p>aizpy 的发音可以分为两个部分：</p>
-<ul>
-<li>"AI" 的发音类似于英语单词 "eye" 中的音素，读作 /aɪ/。</li>
-<li>"zpy" 的发音可以类似于英语单词 "zip" 中的音素，读作 /zɪp/。</li>
-</ul>
-<p>综合起来，"aizpy" 的发音可以近似为 /aɪzpi/。</p>
-<p>其实，zpy 也是我姓名的首字母拼音哦 (^_~)</p>
-
-  </div>
-
-  
-</article>
-
 
 
 
@@ -356,11 +496,8 @@
 
 
 
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+
+
     
 
     
@@ -478,6 +615,46 @@
   
 
 
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
 
 
   <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
